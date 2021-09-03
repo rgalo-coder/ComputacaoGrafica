@@ -52,8 +52,11 @@ unsigned int Indices[20][3] = {
 
 Vertex Vertices[12];
 
-unsigned int Indices2[500];
-Vertex Vertices2[500];
+unsigned int IndicesFinal[500];
+Vertex VerticesFinal[500];   //antigo 1
+
+unsigned int IndicesTemp[500];
+Vertex VerticesTemp[500]; //antigo 2
 
 
 void CriarIcosaedro(GLuint* VBO, GLuint* IBO)
@@ -88,8 +91,8 @@ void CriarIcosaedro(GLuint* VBO, GLuint* IBO)
 			red += 0.025f;
 			green += 0.025f;
 		}
-
-
+		
+		CopiarArrays();
 		SubdividirIcosaedro(2);
 	
 
@@ -112,6 +115,12 @@ glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *IBO);
 glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices2), Indices2, GL_STATIC_DRAW);
 
 }
+
+void CopiarArrays()
+{
+	for
+}
+
 
 Vertex PontoMedio(Vertex ponto1, Vertex ponto2)
 {
