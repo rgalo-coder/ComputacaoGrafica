@@ -67,7 +67,7 @@ static void RenderSceneCB()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
     //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-    glDrawElements(GL_TRIANGLES, 36*300, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 36*90000, GL_UNSIGNED_INT, 0);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -214,7 +214,7 @@ int main(int argc, char** argv)
     int x = 200;
     int y = 100;
     glutInitWindowPosition(x, y);
-    int win = glutCreateWindow("Tutorial 14");
+    int win = glutCreateWindow("Exercicio IA725");
     printf("window id: %d\n", win);
 
     // Must be done after glut is initialized!

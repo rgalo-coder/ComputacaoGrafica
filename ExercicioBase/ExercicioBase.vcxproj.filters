@@ -39,7 +39,7 @@
     <ClCompile Include="ogldev_util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="tutorial14.cpp">
+    <ClCompile Include="ExercicioBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="world_transform.cpp">

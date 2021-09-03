@@ -43,25 +43,29 @@ struct Vertex {
 
 };
 
-unsigned int Indices[20][3] = {
-	  {0,4,1},{0,9,4},{9,5,4},{4,5,8},{4,8,1},
-	  {8,10,1},{8,3,10},{5,3,8},{5,2,3},{2,7,3},
-	  {7,10,3},{7,6,10},{7,11,6},{11,0,6},{0,1,6},
-	  {6,1,10},{9,0,11},{9,11,2},{9,2,5},{7,2,11}
+//unsigned int Indices[20][3] = {
+//	  {0,4,1},{0,9,4},{9,5,4},{4,5,8},{4,8,1},
+//	  {8,10,1},{8,3,10},{5,3,8},{5,2,3},{2,7,3},
+//	  {7,10,3},{7,6,10},{7,11,6},{11,0,6},{0,1,6},
+//	  {6,1,10},{9,0,11},{9,11,2},{9,2,5},{7,2,11}
+//};
+
+unsigned int Indices[4000] = { 0,4,1,0,9,4,9,5,4,4,5,8,4,8,1,
+	  8,10,1,8,3,10,5,3,8,5,2,3,2,7,3,
+	  7,10,3,7,6,10,7,11,6,11,0,6,0,1,6,
+	  6,1,10,9,0,11,9,11,2,9,2,5,7,2,11
+
 };
 
-Vertex Vertices[12];
+unsigned int Indices2[4000];
 
-unsigned int IndicesFinal[500];
-Vertex VerticesFinal[500];   //antigo 1
-
-unsigned int IndicesTemp[500];
-Vertex VerticesTemp[500]; //antigo 2
+Vertex Vertices[1000];
+Vertex Vertices2[1000];
 
 
 void CriarIcosaedro(GLuint* VBO, GLuint* IBO)
 {
-	
+
 
 	const float X = 0.525731112119133606f;
 	const float Z = 0.850650808352039932f;
@@ -76,50 +80,46 @@ void CriarIcosaedro(GLuint* VBO, GLuint* IBO)
 
 	float red = 0.3f;
 	float green = 0.3f;
-	
-		for (int i = 0; i < 12; i++)
-		{			
-			Vertices[i].pos.x = _vertices[i][0];
-			Vertices[i].pos.y = _vertices[i][1];
-			Vertices[i].pos.z = _vertices[i][2];
 
-			/*float red = (float)rand() / (float)RAND_MAX;
-			float green = (float)rand() / (float)RAND_MAX;
-			float blue = (float)rand() / (float)RAND_MAX;*/
+	for (int i = 0; i < 12; i++)
+	{
+		Vertices[i].pos.x = _vertices[i][0];
+		Vertices[i].pos.y = _vertices[i][1];
+		Vertices[i].pos.z = _vertices[i][2];
 
-			Vertices[i].color = { red , green, 0.0f };
-			red += 0.025f;
-			green += 0.025f;
-		}
-		
-		CopiarArrays();
-		SubdividirIcosaedro(2);
-	
+		/*float red = (float)rand() / (float)RAND_MAX;
+		float green = (float)rand() / (float)RAND_MAX;
+		float blue = (float)rand() / (float)RAND_MAX;*/
 
-glGenBuffers(1, VBO);
-glBindBuffer(GL_ARRAY_BUFFER, *VBO);
+		Vertices[i].color = { red , green, 0.0f };
+		red += 0.025f;
+		green += 0.025f;
+	}
 
-//icosaedro original
-//glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
 
-//icosardro subdividido
-glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices2), Vertices2, GL_STATIC_DRAW);
+	SubdividirIcosaedro(3);
 
-glGenBuffers(1, IBO);
-glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *IBO);
 
-//icosaedro original
-//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+	glGenBuffers(1, VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
 
-//icosardro subdividido
-glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices2), Indices2, GL_STATIC_DRAW);
+	//icosaedro original
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+
+	//icosardro subdividido
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices2), Vertices2, GL_STATIC_DRAW);
+
+	glGenBuffers(1, IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *IBO);
+
+	//icosaedro original
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+
+	//icosardro subdividido
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices2), Indices2, GL_STATIC_DRAW);
 
 }
 
-void CopiarArrays()
-{
-	for
-}
 
 
 Vertex PontoMedio(Vertex ponto1, Vertex ponto2)
@@ -133,11 +133,14 @@ Vertex PontoMedio(Vertex ponto1, Vertex ponto2)
 
 int Buscar(Vertex* vertices, int size, Vertex target)
 {
+	
+	float erro = 0.001f;
 	for (int i = 0; i <= size; ++i)
 	{
-		if (vertices[i].pos.x == target.pos.x)
-			if (vertices[i].pos.y == target.pos.y)
-				if (vertices[i].pos.z == target.pos.z)
+		
+		if (vertices[i].pos.x > (target.pos.x - erro) && (vertices[i].pos.x < (target.pos.x + erro)))
+			if (vertices[i].pos.y > (target.pos.y - erro) && (vertices[i].pos.y < (target.pos.y + erro)))
+				if (vertices[i].pos.z > (target.pos.z - erro) && (vertices[i].pos.z < (target.pos.z + erro)))
 				{
 					return i;
 				}
@@ -146,20 +149,24 @@ int Buscar(Vertex* vertices, int size, Vertex target)
 	return -1;
 }
 
-int AdicionarVertice(Vertex* vertices, unsigned int* indices, int* pos, Vertex ponto)
+int AdicionarVertice(Vertex* vertices, unsigned int* indices, int* posI, int* posV, Vertex ponto)
 {
-	int resultado = Buscar(Vertices2, *pos, ponto);
+	int resultado = Buscar(Vertices2, *posV, ponto);
 	if (resultado == -1)
-	{ 
-		vertices[*pos] = ponto;
-		indices[*pos] = *pos;
-		*pos = *pos + 1;
-		return *pos;
+	{
+		//nao encontrou vertice entao ele é adicionado na tabela de vertices
+		vertices[*posV] = ponto;
+		*posV = *posV + 1;
+
+		//adiciona vertice ao indice
+		indices[*posI] = *posV - 1;
+		*posI = *posI + 1;
+		return *posI;
 	}
 	else
 	{
-		indices[*pos] = resultado;
-		*pos = *pos + 1;
+		indices[*posI] = resultado;
+		*posI = *posI + 1;
 		return resultado;
 	}
 }
@@ -169,15 +176,16 @@ void SubdividirIcosaedro(int graus)
 {
 	for (int iteracoes = 1; iteracoes <= graus; iteracoes++)
 	{
-		int pos = 0;
+		int posIndices = 0;
+		int posVertices = 0;
 		int indicevertice = 0;
-
-		for (int i = 0; i < 20; i++)
+		int max = pow(4, (iteracoes - 1));
+		max = max * 20;
+		for (int i = 0; i < max; i++)
 		{
-
-			int indicePontoA = Indices[i][0];
-			int indicePontoB = Indices[i][1];
-			int indicePontoC = Indices[i][2];
+			int indicePontoA = Indices[3 * i + 0];
+			int indicePontoB = Indices[3 * i + 1];
+			int indicePontoC = Indices[3 * i + 2];
 
 			Vertex pontoA = Vertices[indicePontoA];
 			Vertex pontoB = Vertices[indicePontoB];
@@ -193,56 +201,44 @@ void SubdividirIcosaedro(int graus)
 			pontoMedioCA.Normalizar();
 
 
-			//indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoA);
-			//indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoB);
-			//indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoC);
-
-			//indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioAB);
-			//indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioBC);
-			//indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioCA);
-
 
 			//cria 4 triangulos a partir de 1
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoA);
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioCA);
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioAB);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoA);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioCA);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioAB);
 
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioCA);
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoC);
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioBC);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioCA);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoC);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioBC);
 
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioAB);
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioCA);
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioBC);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioAB);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioCA);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioBC);
 
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioAB);
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoMedioBC);
-			indicevertice = AdicionarVertice(Vertices2, Indices2, &pos, pontoB);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioAB);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioBC);
+			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoB);
 
-
-
-			/*Vertices2[pos] = Vertices[pontoA];
-
-			Indices2[pos] = i;
-
-
-			Vertices2[pos + 1] = Vertices[pontoB];
-			Vertices2[pos + 2] = Vertices[pontoC];
-
-			Vertices2[pos + 3] = pontoMedioAB;
-			Vertices2[pos + 4] = pontoMedioBC;
-			Vertices2[pos + 5] = pontoMedioCA;
-
-			Indices2[pos + 1] = i+1;
-			Indices2[pos + 2] = i + 2;
-
-			Indices2[pos + 3] = i + 3;
-			Indices2[pos + 4] = i + 4;
-			Indices2[pos + 5] = i + 5;   */
 
 		}
+		CopiarVet2para1();  //copia valores dos vetores 2 para os vetores 1 para poder repetir iteracao
 	}
 
-	}
 
+}
+
+void CopiarVet2para1()
+{
+	for (int i = 0; i < 4000; i++)
+	{
+		Indices[i] = Indices2[i];
+		Indices2[i] = 0;
+	}
+	for (int i = 0; i < 1000; i++)
+	{
+		Vertices[i] = Vertices2[i];
+		Vertices2[i] = Vertex(0,0,0);
+
+	}
+}
 
