@@ -13,6 +13,7 @@
 
 #include "Mesa.h"
 #include "Icosaedro.h"
+#include "BuleUtah.h"
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
@@ -26,7 +27,7 @@ Camera GameCamera;
 
 float FOV = 45.0f;
 float zNear = 1.0f;
-float zFar = 10.0f;
+float zFar = 100.0f;
 PersProjInfo PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
 
 
@@ -43,6 +44,7 @@ static void RenderSceneCB()
 #endif
 
     CubeWorldTransform.SetPosition(0.0f, 0.0f, 2.0f);
+
     CubeWorldTransform.Rotate(0.0f, YRotationAngle, 0.0f);
     Matrix4f World = CubeWorldTransform.GetMatrix();
 
@@ -67,7 +69,7 @@ static void RenderSceneCB()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
     //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-    glDrawElements(GL_TRIANGLES, 36*90000, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 36*1200, GL_UNSIGNED_INT, 0);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -230,21 +232,22 @@ int main(int argc, char** argv)
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
     glCullFace(GL_BACK);
+    
+     // apenas wireframe
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    //CreateVertexBuffer();
-    //CreateIndexBuffer();
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // apenas wireframe
-
-
-    CriarMesa(&VBO,&IBO);
-    CriarIcosaedro(&VBO, &IBO);
+    //selecionar qual exercicio mostrar e comentar os outros
+    //CriarMesa(&VBO,&IBO);
+    //CriarIcosaedro(&VBO, &IBO);
+    CriarBuleUtah(&VBO, &IBO);
 
     CompileShaders();
 
     glutDisplayFunc(RenderSceneCB);
     glutKeyboardFunc(KeyboardCB);
     glutSpecialFunc(SpecialKeyboardCB);
+
+    CubeWorldTransform.Rotate(-90.0f, 0.0f, 0.0f);
 
     glutMainLoop();
 

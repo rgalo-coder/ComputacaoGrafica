@@ -144,7 +144,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ogldev\Common\ogldev_util.cpp" />
     <None Include="BuleUtah.cpp" />
     <ClCompile Include="ExercicioMesa.cpp" />
     <ClCompile Include="PatchBezier.cpp" />

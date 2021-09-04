@@ -5,7 +5,7 @@ layout (location = 1) in vec3 inColor;
 
 uniform mat4 gWVP;
 
-flat out vec4 Color;
+out vec4 Color;
 
 void main()
 {

@@ -158,16 +158,20 @@
     <Library Include="..\Lib\x64\freeglut.lib" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BuleUtah.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="Icosaedro.cpp" />
     <ClCompile Include="math_3d.cpp" />
     <ClCompile Include="Mesa.cpp" />
     <ClCompile Include="ogldev_util.cpp" />
     <ClCompile Include="ExercicioBase.cpp" />
+    <None Include="DadosBule.cpp" />
     <ClCompile Include="world_transform.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BuleUtah.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="DadosBule.h" />
     <ClInclude Include="Icosaedro.h" />
     <ClInclude Include="Mesa.h" />
     <ClInclude Include="world_transform.h" />

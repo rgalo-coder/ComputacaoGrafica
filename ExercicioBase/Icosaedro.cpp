@@ -102,21 +102,11 @@ void CriarIcosaedro(GLuint* VBO, GLuint* IBO)
 
 	glGenBuffers(1, VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-
-	//icosaedro original
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-
-	//icosardro subdividido
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices2), Vertices2, GL_STATIC_DRAW);
 
 	glGenBuffers(1, IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *IBO);
-
-	//icosaedro original
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-
-	//icosardro subdividido
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices2), Indices2, GL_STATIC_DRAW);
 
 }
 

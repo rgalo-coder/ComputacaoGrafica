@@ -20,6 +20,9 @@
     <None Include="..\Lib\glew32.dll" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
+    <None Include="DadosBule.cpp">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\Lib\x64\freeglut.lib" />
@@ -51,6 +54,9 @@
     <ClCompile Include="Icosaedro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="BuleUtah.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -63,6 +69,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Icosaedro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BuleUtah.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DadosBule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
