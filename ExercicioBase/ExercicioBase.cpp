@@ -234,9 +234,10 @@ int main(int argc, char** argv)
     glCullFace(GL_BACK);
     
      // apenas wireframe
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     //selecionar qual exercicio mostrar e comentar os outros
+    // 
     //CriarMesa(&VBO,&IBO);
     //CriarIcosaedro(&VBO, &IBO);
     CriarBuleUtah(&VBO, &IBO);
