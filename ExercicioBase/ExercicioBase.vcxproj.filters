@@ -73,5 +73,8 @@
     <ClInclude Include="DadosBule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ExercicioBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

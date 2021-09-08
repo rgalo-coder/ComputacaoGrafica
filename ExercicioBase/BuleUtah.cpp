@@ -67,10 +67,12 @@ void BuleUtah::RenderizarPatches()
 	int nVertices = 0;
 	int nIndices = 0;
 	int indicepatch;
+    float azulaleatorio;
 
     for (int np = 0; np < 32; ++np) 
 	{
         // set the control points for the current patch                                                                                                                                                    
+        azulaleatorio = RandomFloat()/0.6f  + 0.2f;
         for (int i = 0; i < 16; ++i)
         {
 			indicepatch = IndicesPatche[np][i];      
@@ -85,7 +87,8 @@ void BuleUtah::RenderizarPatches()
                 P[nVertices] = calcularPatchBezier(controlPoints, i / (float)divs, j / (float)divs);
 
                 //azul aleatorio
-                float azulaleatorio = ((float)rand() / (float)RAND_MAX / 3) + 1.0f/3*2;
+                
+                
                 P[nVertices].color = Vector3f(0.0f, 0.0f, azulaleatorio);
 				nVertices++;
             }
@@ -99,12 +102,12 @@ void BuleUtah::RenderizarPatches()
 				int offset = (divs + 1) * (divs + 1) * np ;
 
 				IndicesBule[nIndices ] =	(divs + 1) * j + i + offset;
-				IndicesBule[nIndices + 2] =	(divs + 1) * j + i + 1 + offset;
-				IndicesBule[nIndices + 1] =	(divs + 1) * (j + 1 ) + i + offset;
+				IndicesBule[nIndices + 1] =	(divs + 1) * j + i + 1 + offset;
+				IndicesBule[nIndices + 2] =	(divs + 1) * (j + 1 ) + i + offset;
 				
 				IndicesBule[nIndices + 3] =	(divs + 1) * (j + 1) + i + offset;
-				IndicesBule[nIndices + 4] =	(divs + 1) * (j + 1) + i + 1 + offset;
-				IndicesBule[nIndices + 5] =	(divs + 1) * j + i + 1 + offset;
+				IndicesBule[nIndices + 5] =	(divs + 1) * (j + 1) + i + 1 + offset;
+				IndicesBule[nIndices + 4] =	(divs + 1) * j + i + 1 + offset;
 				
 				nIndices = nIndices + 6;
                 totalIndices += nIndices;

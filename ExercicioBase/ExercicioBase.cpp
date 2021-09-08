@@ -18,15 +18,18 @@
 #include "Mesa.h"
 #include "Icosaedro.h"
 #include "BuleUtah.h"
+#include "ExercicioBase.h"
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
-GLuint VBO;
-GLuint IBO;
+GLuint VBO[3];
+GLuint IBO[3];
 GLuint gWVPLocation;
+GLuint VAO;
 
-WorldTrans CubeWorldTransform;
+WorldTrans CubeWorldTransform,TransBule, TransIcosaedro, TransMesa;
+
 Camera GameCamera;
 
 float FOV = 45.0f;
@@ -40,8 +43,6 @@ static void RenderSceneCB()
 {
     //Ting: limpar o buffer de profundidade 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-
 
 #ifdef _WIN64
     float YRotationAngle = 0.1f;
@@ -59,22 +60,20 @@ static void RenderSceneCB()
     Matrix4f Projection;
     Projection.InitPersProjTransform(PersProjInfo);
 
+  
     Matrix4f WVP = Projection * View * World;
 
-    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+    //desenhar mesa
+    DesenharMesa(WVP);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    //desenhar bule
+    TransBule.SetScale(0.1f);
+    DesenharBule(WVP, TransBule.GetMatrix());
 
-    // position
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-
-    // color
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-
-    glDrawElements(GL_TRIANGLES, numTotalIndices, GL_UNSIGNED_INT, 0);
+   //desenhar icosaedro
+    TransIcosaedro.SetScale(0.1f);
+    TransIcosaedro.SetPosition(0.4f, 0.5f, 0.1f);
+    DesenharIcosaedro(WVP, TransIcosaedro.GetMatrix());
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -84,6 +83,60 @@ static void RenderSceneCB()
     glutSwapBuffers();
 }
 
+static void DesenharMesa(Matrix4f WVP) {
+    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+
+    //desenhar mesa
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[0]);
+
+    // position
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+
+    // color
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glDrawElements(GL_TRIANGLES, numIndicesMesa, GL_UNSIGNED_INT, 0);
+}
+
+static void DesenharBule(Matrix4f WVP, Matrix4f transformacao)
+{
+
+    WVP = WVP * transformacao;
+
+    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[1]);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+
+    // color
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glDrawElements(GL_TRIANGLES, numIndicesBule, GL_UNSIGNED_INT, 0);
+}
+
+static void DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao)
+{
+    WVP = WVP * transformacao;
+
+    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[2]);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+
+    // color
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    glDrawElements(GL_TRIANGLES, numIndicesIcosaedro, GL_UNSIGNED_INT, 0);
+}
 
 static void KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
 {
@@ -233,19 +286,22 @@ int main(int argc, char** argv)
 
   //Ting: Pela especificacao, deve-se criar um array object (VAO) que contem o estado dos vertices
   //Create an object that stores all of the state needed to suppl vertex data
-    GLuint VAO_mesa;
-    glGenVertexArrays(1, &VAO_mesa);
-    glBindVertexArray(VAO_mesa);
-    Mesa* mesa = new Mesa(&VBO, &IBO);
+   
+    glGenVertexArrays(1, &VAO);
+    glBindVertexArray(VAO);
+    glGenBuffers(3, VBO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    Mesa* mesa = new Mesa(&VBO[0], &IBO[0]);
     numIndicesMesa = mesa->RetornarNumIndices();
+  
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    BuleUtah* bule = new BuleUtah(&VBO[1], &IBO[1]);
+    numIndicesBule = bule->RetornarNumIndices();
 
-
-
-    //selecionar qual exercicio mostrar e comentar os outros
-
-    //BuleUtah* bule = new BuleUtah(&VBO, &IBO);
-    //Icosaedro* icosaedro = new Icosaedro(&VBO, &IBO,3);
-    //numTotalIndices = icosaedro->RetornarNumIndices();
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
+    Icosaedro* icosaedro = new Icosaedro(&VBO[2], &IBO[2], 3);
+    numIndicesIcosaedro = icosaedro->RetornarNumIndices();
 
     CompileShaders();
 
