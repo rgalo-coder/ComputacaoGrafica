@@ -9,47 +9,6 @@
 #include "ogldev_math_3d.h"
 #include "Icosaedro.h"
 
-struct Vertex {
-	Vector3f pos;
-	Vector3f color;
-
-	Vertex() {}
-
-	Vertex(float x, float y, float z)
-	{
-		pos = Vector3f(x, y, z);
-		float red = (float)rand() / (float)RAND_MAX;
-		float green = (float)rand() / (float)RAND_MAX;
-		float blue = (float)rand() / (float)RAND_MAX;
-		color = Vector3f(red, green, 0.0f);
-	}
-
-	//Normalizar vetor
-	Vertex& Normalizar()
-	{
-		float x = this->pos.x;
-		float y = this->pos.y;
-		float z = this->pos.z;
-		const float Length = sqrtf(x * x + y * y + z * z);
-
-		assert(Length != 0);
-
-		this->pos.x /= Length;
-		this->pos.y /= Length;
-		this->pos.z /= Length;
-
-		return *this;
-	}
-
-};
-
-//unsigned int Indices[20][3] = {
-//	  {0,4,1},{0,9,4},{9,5,4},{4,5,8},{4,8,1},
-//	  {8,10,1},{8,3,10},{5,3,8},{5,2,3},{2,7,3},
-//	  {7,10,3},{7,6,10},{7,11,6},{11,0,6},{0,1,6},
-//	  {6,1,10},{9,0,11},{9,11,2},{9,2,5},{7,2,11}
-//};
-
 unsigned int Indices[4000] = { 0,4,1,0,9,4,9,5,4,4,5,8,4,8,1,
 	  8,10,1,8,3,10,5,3,8,5,2,3,2,7,3,
 	  7,10,3,7,6,10,7,11,6,11,0,6,0,1,6,
@@ -63,10 +22,10 @@ Vertex Vertices[1000];
 Vertex Vertices2[1000];
 
 
-void CriarIcosaedro(GLuint* VBO, GLuint* IBO)
+Icosaedro::Icosaedro(GLuint* VBO, GLuint* IBO, int graus)
 {
 
-
+	indicevertice = 0;
 	const float X = 0.525731112119133606f;
 	const float Z = 0.850650808352039932f;
 	const float N = 0.0f;
@@ -97,7 +56,7 @@ void CriarIcosaedro(GLuint* VBO, GLuint* IBO)
 	}
 
 
-	SubdividirIcosaedro(3);
+	SubdividirIcosaedro(graus);
 
 
 	glGenBuffers(1, VBO);
@@ -110,9 +69,7 @@ void CriarIcosaedro(GLuint* VBO, GLuint* IBO)
 
 }
 
-
-
-Vertex PontoMedio(Vertex ponto1, Vertex ponto2)
+Vertex Icosaedro::PontoMedio(Vertex ponto1, Vertex ponto2)
 {
 	float x_medio = (ponto1.pos.x + ponto2.pos.x) / 2;
 	float y_medio = (ponto1.pos.y + ponto2.pos.y) / 2;
@@ -121,7 +78,7 @@ Vertex PontoMedio(Vertex ponto1, Vertex ponto2)
 	return _ret;
 }
 
-int Buscar(Vertex* vertices, int size, Vertex target)
+int Icosaedro::Buscar(Vertex* vertices, int size, Vertex target)
 {
 	
 	float erro = 0.001f;
@@ -139,7 +96,7 @@ int Buscar(Vertex* vertices, int size, Vertex target)
 	return -1;
 }
 
-int AdicionarVertice(Vertex* vertices, unsigned int* indices, int* posI, int* posV, Vertex ponto)
+int Icosaedro::AdicionarVertice(Vertex* vertices, unsigned int* indices, int* posI, int* posV, Vertex ponto)
 {
 	int resultado = Buscar(Vertices2, *posV, ponto);
 	if (resultado == -1)
@@ -157,18 +114,18 @@ int AdicionarVertice(Vertex* vertices, unsigned int* indices, int* posI, int* po
 	{
 		indices[*posI] = resultado;
 		*posI = *posI + 1;
-		return resultado;
+		//return resultado;
+		return *posI;
 	}
 }
 
-
-void SubdividirIcosaedro(int graus)
+void Icosaedro::SubdividirIcosaedro(int graus)
 {
 	for (int iteracoes = 1; iteracoes <= graus; iteracoes++)
 	{
 		int posIndices = 0;
 		int posVertices = 0;
-		int indicevertice = 0;
+		
 		int max = pow(4, (iteracoes - 1));
 		max = max * 20;
 		for (int i = 0; i < max; i++)
@@ -217,7 +174,7 @@ void SubdividirIcosaedro(int graus)
 
 }
 
-void CopiarVet2para1()
+void Icosaedro::CopiarVet2para1()
 {
 	for (int i = 0; i < 4000; i++)
 	{
@@ -232,3 +189,7 @@ void CopiarVet2para1()
 	}
 }
 
+unsigned int Icosaedro::RetornarNumIndices() 
+{
+	return indicevertice;
+}

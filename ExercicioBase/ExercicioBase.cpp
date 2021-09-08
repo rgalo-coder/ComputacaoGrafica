@@ -1,4 +1,8 @@
-
+/*! \Codigo base para preparar sistema OpenGL e carregar modelos
+ 
+ *
+ * 
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -27,15 +31,17 @@ Camera GameCamera;
 
 float FOV = 45.0f;
 float zNear = 1.0f;
-float zFar = 100.0f;
+float zFar = 10.0f;
 PersProjInfo PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
 
+unsigned int numTotalIndices, numIndicesMesa, numIndicesIcosaedro, numIndicesBule = 0;
 
 static void RenderSceneCB()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    //Ting: limpar o buffer de profundidade 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
- 
+
 
 #ifdef _WIN64
     float YRotationAngle = 0.1f;
@@ -68,8 +74,7 @@ static void RenderSceneCB()
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-    glDrawElements(GL_TRIANGLES, 36*1200, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, numTotalIndices, GL_UNSIGNED_INT, 0);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -91,26 +96,6 @@ static void SpecialKeyboardCB(int key, int mouse_x, int mouse_y)
     GameCamera.OnKeyboard(key);
 }
 
-
-struct Vertex {
-    Vector3f pos;
-    Vector3f color;
-
-    Vertex() {}
-
-    Vertex(float x, float y, float z)
-    {
-        pos = Vector3f(x, y, z);
-
-        //float red   = (float)rand() / (float)RAND_MAX;
-        //float green = (float)rand() / (float)RAND_MAX;
-        //float blue  = (float)rand() / (float)RAND_MAX;
-        //color = Vector3f(red, green, blue);
-    }
-
-
- 
-};
 
 
 
@@ -210,7 +195,14 @@ int main(int argc, char** argv)
 #endif
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGBA);
+
+    //Ting: para algumas placas onboard eh necessario configurar profile.
+    glutInitContextVersion(4, 5);// Major version and minor version
+    glutInitContextProfile(GLUT_CORE_PROFILE);
+
+    //Ting: habilitar o buffer de profundidade
+
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     int x = 200;
@@ -232,15 +224,28 @@ int main(int argc, char** argv)
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
     glCullFace(GL_BACK);
-    
-     // apenas wireframe
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_AUTO_NORMAL);
+
+    // apenas wireframe
+   //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+  //Ting: Pela especificacao, deve-se criar um array object (VAO) que contem o estado dos vertices
+  //Create an object that stores all of the state needed to suppl vertex data
+    GLuint VAO_mesa;
+    glGenVertexArrays(1, &VAO_mesa);
+    glBindVertexArray(VAO_mesa);
+    Mesa* mesa = new Mesa(&VBO, &IBO);
+    numIndicesMesa = mesa->RetornarNumIndices();
+
+
 
     //selecionar qual exercicio mostrar e comentar os outros
-    // 
-    //CriarMesa(&VBO,&IBO);
-    //CriarIcosaedro(&VBO, &IBO);
-    CriarBuleUtah(&VBO, &IBO);
+
+    //BuleUtah* bule = new BuleUtah(&VBO, &IBO);
+    //Icosaedro* icosaedro = new Icosaedro(&VBO, &IBO,3);
+    //numTotalIndices = icosaedro->RetornarNumIndices();
 
     CompileShaders();
 

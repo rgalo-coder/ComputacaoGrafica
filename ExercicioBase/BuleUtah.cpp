@@ -7,53 +7,21 @@
 #include <GL/freeglut.h>
 
 #include "ogldev_math_3d.h"
+#include "DadosBule.h"
 #include "BuleUtah.h"
 
 
 #include <vector>
 
-#include "DadosBule.cpp"
-//
-//struct Vertex {
-//	Vector3f pos;
-//	Vector3f color;
-//
-//	Vertex() {}
-//
-//	Vertex(float x, float y, float z)
-//	{
-//		pos = Vector3f(x, y, z);
-//		float red = (float)rand() / (float)RAND_MAX;
-//		float green = (float)rand() / (float)RAND_MAX;
-//		float blue = (float)rand() / (float)RAND_MAX;
-//		color = Vector3f(red, green, 0.0f);
-//	}
-//
-//	//Normalizar vetor
-//	Vertex& Normalizar()
-//	{
-//		float x = this->pos.x;
-//		float y = this->pos.y;
-//		float z = this->pos.z;
-//		const float Length = sqrtf(x * x + y * y + z * z);
-//
-//		assert(Length != 0);
-//
-//		this->pos.x /= Length;
-//		this->pos.y /= Length;
-//		this->pos.z /= Length;
-//
-//		return *this;
-//	}
-//
-//};
 
-unsigned int IndicesBule[60000] = {};
 Vertex P[20000];
+GLuint* VBO;
+GLuint* IBO;
+unsigned int IndicesBule[60000] = {};
 
-
-void CriarBuleUtah(GLuint* VBO, GLuint* IBO)
+BuleUtah::BuleUtah(GLuint* VBO, GLuint* IBO)
 {
+    totalIndices = 0;
     RenderizarPatches();
 
     glGenBuffers(1, VBO);
@@ -68,7 +36,7 @@ void CriarBuleUtah(GLuint* VBO, GLuint* IBO)
 }
 
 
-Vertex calcularCurvaBezier(Vertex* P, const float& t)
+Vertex BuleUtah::calcularCurvaBezier(Vertex* P, const float& t)
 {
     float b0 = (1 - t) * (1 - t) * (1 - t);
     float b1 = 3 * t * (1 - t) * (1 - t);
@@ -84,19 +52,17 @@ Vertex calcularCurvaBezier(Vertex* P, const float& t)
     return r1;
 }
 
-Vertex calcularPatchBezier(Vertex* controlPoints, const float& u, const float& v)
+Vertex BuleUtah::calcularPatchBezier(Vertex* controlPoints, const float& u, const float& v)
 {
     Vertex uCurve[4];
     for (int i = 0; i < 4; ++i) uCurve[i] = calcularCurvaBezier(controlPoints + 4 * i, u);
     return calcularCurvaBezier(uCurve, v);
 }
 
-void RenderizarPatches()
+void BuleUtah::RenderizarPatches()
 {
     //numero de subdivioes de cada linha do patch
     int divs = 16; 
- //   int* nvertices = new int[divs * divs];
-//    int* vertices = new int[divs * divs * 4];
     Vertex controlPoints[16];
 	int nVertices = 0;
 	int nIndices = 0;
@@ -119,13 +85,13 @@ void RenderizarPatches()
                 P[nVertices] = calcularPatchBezier(controlPoints, i / (float)divs, j / (float)divs);
 
                 //azul aleatorio
-                float azulaleatorio = ((float)rand() / (float)RAND_MAX / 2) + 0.5f;
+                float azulaleatorio = ((float)rand() / (float)RAND_MAX / 3) + 1.0f/3*2;
                 P[nVertices].color = Vector3f(0.0f, 0.0f, azulaleatorio);
 				nVertices++;
             }
         }
 
-        // face connectivity
+        // ligando os pontos do patch com triangulos
         for (int j = 0, k = 0; j < divs; ++j) 
 		{
             for (int i = 0; i < divs; ++i, ++k) 
@@ -141,9 +107,14 @@ void RenderizarPatches()
 				IndicesBule[nIndices + 5] =	(divs + 1) * j + i + 1 + offset;
 				
 				nIndices = nIndices + 6;
-		
+                totalIndices += nIndices;
             }
         }		      
     }
+}
+
+unsigned int BuleUtah::RetornarNumIndices() 
+{
+    return totalIndices;
 }
 

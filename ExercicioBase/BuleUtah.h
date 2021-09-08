@@ -1,14 +1,26 @@
 #pragma once
 
 
-void CriarBuleUtah(GLuint* VBO, GLuint* IBO);
 
-extern struct Vertex;
+//Ting: eh preciso especificar a variavel
+//extern struct Vertex;
+extern struct Vertex P[];
 
-Vertex calcularCurvaBezier(Vertex* P, const float& t);
+extern Vertex VerticesPatches[306];
 
-Vertex calcularPatchBezier(Vertex* controlPoints, const float& u, const float& v);
-
-void RenderizarPatches();
+extern unsigned int IndicesPatche[32][16];
 
 struct Vertex;
+
+class BuleUtah
+{
+public:
+	BuleUtah(GLuint* VBO, GLuint* IBO);
+	unsigned int RetornarNumIndices();
+
+private:
+	Vertex calcularCurvaBezier(Vertex* P, const float& t);
+	Vertex calcularPatchBezier(Vertex* controlPoints, const float& u, const float& v);
+	void RenderizarPatches();
+	unsigned int totalIndices;
+};

@@ -15,14 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\ogldev\tutorial14_youtube\build.sh" />
     <None Include="..\Lib\x64\freeglut.dll" />
     <None Include="..\Lib\glew32.dll" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
-    <None Include="DadosBule.cpp">
-      <Filter>Source Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\Lib\x64\freeglut.lib" />

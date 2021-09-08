@@ -362,5 +362,41 @@ public:
     void InitOrthoProjTransform(const OrthoProjInfo& p);
 };
 
+struct Vertex {
+    Vector3f pos;
+    Vector3f color;
+
+    Vertex() {}
+
+    Vertex(float x, float y, float z)
+    {
+        pos = Vector3f(x, y, z);
+        float red = (float)rand() / (float)RAND_MAX;
+        float green = (float)rand() / (float)RAND_MAX;
+        float blue = (float)rand() / (float)RAND_MAX;
+        color = Vector3f(red, green, 0.0f);
+    }
+
+    //Normalizar vetor
+    Vertex& Normalizar()
+    {
+        float x = this->pos.x;
+        float y = this->pos.y;
+        float z = this->pos.z;
+        const float Length = sqrtf(x * x + y * y + z * z);
+
+        assert(Length != 0);
+
+        this->pos.x /= Length;
+        this->pos.y /= Length;
+        this->pos.z /= Length;
+
+        return *this;
+    }
+
+};
+
+
+
 
 #endif  /* MATH_3D_H */
