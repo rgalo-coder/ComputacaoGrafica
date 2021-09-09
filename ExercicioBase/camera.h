@@ -27,13 +27,28 @@
 class Camera
 {
 public:
-
+    /// <summary>
+    /// Construtor da classe Camera
+    /// </summary>
     Camera();
-
+    /// <summary>
+    /// Define posicao da camera
+    /// </summary>
+    /// <param name="x">Coordenada X</param>
+    /// <param name="y">Coordenada Y</param>
+    /// <param name="z">Coordenada Z</param>
     void SetPosition(float x, float y, float z);
 
+    /// <summary>
+    /// Funcao chamada quando uma tecla e pressionada
+    /// </summary>
+    /// <param name="key">Tecla pressionada<param>
     void OnKeyboard(unsigned char key);
 
+    /// <summary>
+    /// Retorna matrix 4x4 com a posicao da camera
+    /// </summary>
+    /// <returns>Matrix 4x4 com posicao da camera</returns>
     Matrix4f GetMatrix();
 
 private:

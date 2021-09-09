@@ -259,6 +259,8 @@ int ExercicioBase::startup()
     GLclampf Red = 0.0f, Green = 0.0f, Blue = 0.0f, Alpha = 0.0f;
     glClearColor(Red, Green, Blue, Alpha);
 
+    return 0;
+
 }
 
 ExercicioBase::ExercicioBase(int argc, char** argv)

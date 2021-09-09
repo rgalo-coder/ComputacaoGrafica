@@ -19,6 +19,7 @@
     <None Include="..\Lib\glew32.dll" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
+    <None Include="build.sh" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\Lib\x64\freeglut.lib" />

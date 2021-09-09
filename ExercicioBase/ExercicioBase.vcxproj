@@ -148,6 +148,7 @@
     </CopyFileToFolders>
     <None Include="..\Lib\glew32.dll" />
     <None Include="..\Lib\x64\freeglut.dll" />
+    <None Include="build.sh" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
   </ItemGroup>
