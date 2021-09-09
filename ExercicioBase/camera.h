@@ -21,6 +21,9 @@
 
 #include "ogldev_math_3d.h"
 
+/// <summary>
+/// Classe para controle da camera
+/// </summary>
 class Camera
 {
 public:
@@ -39,6 +42,7 @@ private:
     Vector3f m_target;
     Vector3f m_up;
     float m_speed = 0.2f;
+    bool m_isWireframe = false;
 
 };
 

@@ -11,7 +11,7 @@ Camera::Camera()
     m_pos          = Vector3f(0.0f, 0.0f, 0.0f);
     m_target       = Vector3f(0.0f, 0.0f, 1.0f);
     m_up           = Vector3f(0.0f, 1.0f, 0.0f);
-
+   
 
 }
 
@@ -73,6 +73,17 @@ void Camera::OnKeyboard(unsigned char Key)
             m_speed = 0.1f;
         }
         printf("Speed changed to %f\n", m_speed);
+        break;
+
+    case 'z':
+        m_isWireframe = !m_isWireframe;
+
+        if (m_isWireframe) {
+            glPolygonMode(GL_FRONT, GL_LINE);
+        }
+        else {
+            glPolygonMode(GL_FRONT, GL_FILL);
+        }
         break;
 
     }

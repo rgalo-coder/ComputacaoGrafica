@@ -21,16 +21,50 @@
 
 #include "ogldev_math_3d.h"
 
+/// <summary>
+/// Classe para transformacoes nos objetos
+/// </summary>
 class WorldTrans {
  public:
+    /// <summary>
+    /// Construtor
+    /// </summary>
     WorldTrans() {}
 
+    /// <summary>
+    /// Escalona o objeto
+    /// </summary>
+    /// <param name="scale">Fator de escalonamento. Padrao 1.0f para 100% do tamanho</param>
     void SetScale(float scale);
+
+    /// <summary>
+    /// Define rotacao para o objeto
+    /// </summary>
+    /// <param name="x">Rotacao no eixo X (em graus)</param>
+    /// <param name="y">Rotacao no eixo Y (em graus)</param>
+    /// <param name="z">Rotacao no eixo Z (em graus)</param>
     void SetRotation(float x, float y, float z);
+
+    /// <summary>
+    /// Translada o objeto
+    /// </summary>
+    /// <param name="x">Movimento no eixo X</param>
+    /// <param name="y">Movimento no eixo Y</param>
+    /// <param name="z">Movimento no eixo Z</param>
     void SetPosition(float x, float y, float z);
 
+    /// <summary>
+/// Rotaciona objeto alem da rotacao atual
+/// </summary>
+/// <param name="x">Rotacao no eixo X (em graus)</param>
+/// <param name="y">Rotacao no eixo Y (em graus)</param>
+/// <param name="z">Rotacao no eixo Z (em graus)</param>
     void Rotate(float x, float y, float z);
 
+    /// <summary>
+    /// Retorna matrix com todas as transformacoes armazenadas na classe
+    /// </summary>
+    /// <returns>Matrix 4x4 com todas transformacoes </returns>
     Matrix4f GetMatrix();
 
  private:

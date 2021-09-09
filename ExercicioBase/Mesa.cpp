@@ -10,106 +10,91 @@
 #include "Mesa.h"
 
 
-
-class Cilindro
+Cilindro::Cilindro(int _numtriangulos, Vertex base, float raio, float altura, float corR, float corG, float corB)
 {
 
-private:
-    float x, y, z, angle;
-    int ind;
+    n = _numtriangulos;
 
-public:
-    Vertex Vertices[1000];
-    unsigned int Indices[1000] = {};
-    int n;
+    Vertices[0] = base; //centro da base
+    Vertices[n + 1] = Vertex(base.pos.x, base.pos.y, base.pos.z + altura); //centro do topo
 
+    Indices[0] = 0;
 
-    Cilindro(int _numtriangulos, Vertex base, float radius, float height, float colorR, float colorG, float colorB)
+    ind = 0;
+
+    for (int i = 0; i < n; i++)
     {
+        angulo = i * 360.0f / n;
+        x = base.pos.x + raio * cosf(ToRadian(angulo));
+        y = base.pos.y + raio * sinf(ToRadian(angulo));
+        z = base.pos.z;
 
-        n = _numtriangulos;
+        //triangulos da base
+        Vertices[i + 1] = Vertex(x, y, z);
+        Vertices[i + 1].color = Vector3f(corR, corG, corB);
 
-        Vertices[0] = base; //centro da base
-        Vertices[n + 1] = Vertex(base.pos.x, base.pos.y, base.pos.z + height); //centro do topo
+        //triangulos do topo
+        Vertices[i + n + 2] = Vertex(x, y, z + altura);
+        Vertices[i + n + 2].color = Vector3f(0.4, 0.2, 0);
 
-        Indices[0] = 0;
+    }
 
-        ind = 0;
+    for (int i = 0; i < n - 1; i++)
+    {
+        //triangulos da base
+        Indices[ind] = 0;
+        Indices[ind + 1] = i + 2;
+        Indices[ind + 2] = i + 1;
 
-        for (int i = 0; i < n; i++)
+        //triangulos do topo
+        Indices[ind + 3] = 1 + n;
+        Indices[ind + 4] = i + 2 + n;
+        Indices[ind + 5] = i + 3 + n;
+
+        //triangulos laterais
+        Indices[ind + 6] = i + 1;
+        Indices[ind + 7] = i + 2;
+        Indices[ind + 8] = i + n + 2;
+
+        Indices[ind + 9] = i + 2;
+        Indices[ind + 11] = i + n + 2;
+        Indices[ind + 10] = i + n + 3;
+        ind = ind + 12;
+
+        if (i == n - 2)
         {
-            angle = i * 360.0f / n;
-            x = base.pos.x + radius * cosf(ToRadian(angle));
-            y = base.pos.y + radius * sinf(ToRadian(angle));
-            z = base.pos.z;
-
-            //triangulos da base
-            Vertices[i + 1] = Vertex(x, y, z);
-            Vertices[i + 1].color = Vector3f(colorR, colorG, colorB);
-
-            //triangulos do topo
-            Vertices[i + n + 2] = Vertex(x, y, z + height);
-            Vertices[i + n + 2].color = Vector3f(0.4, 0.2, 0);
-
-        }
-
-        for (int i = 0; i < n - 1; i++)
-        {
-            //triangulos da base
             Indices[ind] = 0;
-            Indices[ind + 1] = i + 2;
-            Indices[ind + 2] = i + 1;
+            Indices[ind + 1] = 1;
+            Indices[ind + 2] = i + 2;
 
-            //triangulos do topo
-            Indices[ind + 3] = 1 + n;
-            Indices[ind + 4] = i + 2 + n;
-            Indices[ind + 5] = i + 3 + n;
+            Indices[ind + 3] = n + 1;
+            Indices[ind + 5] = n + 2;
+            Indices[ind + 4] = n + i + 3;
 
-            //triangulos laterais
-            Indices[ind + 6] = i + 1;
-            Indices[ind + 7] = i + 2;
-            Indices[ind + 8] = i + n + 2;
+            Indices[ind + 6] = 1;
+            Indices[ind + 8] = i + 2;
+            Indices[ind + 7] = i + n + 3;
 
-            Indices[ind + 9] = i + 2;
-            Indices[ind + 11] = i + n + 2;
-            Indices[ind + 10] = i + n + 3;
+            Indices[ind + 9] = 1;
+            Indices[ind + 11] = i + n + 3;
+            Indices[ind + 10] = n + 2;
+
             ind = ind + 12;
-
-            if (i == n - 2)
-            {
-                Indices[ind] = 0;
-                Indices[ind + 1] = 1;
-                Indices[ind + 2] = i + 2;
-
-                Indices[ind + 3] = n + 1;
-                Indices[ind + 5] = n + 2;
-                Indices[ind + 4] = n + i + 3;
-
-                Indices[ind + 6] = 1;
-                Indices[ind + 8] = i + 2;
-                Indices[ind + 7] = i + n + 3;
-
-                Indices[ind + 9] = 1;
-                Indices[ind + 11] = i + n + 3;
-                Indices[ind + 10] = n + 2;
-
-                ind = ind + 12;
-            }
         }
     }
+}
 
 
-    unsigned int NumeroVertices()
-    {
-        return n * (3 + 3 + 3 + 3);
-    }
+unsigned int Cilindro::NumeroVertices()
+{
+    return n * (3 + 3 + 3 + 3);
+}
 
-    unsigned int NumeroIndices()
-    {
-        return ind;
-    }
+unsigned int Cilindro::NumeroIndices()
+{
+    return ind;
+}
 
-};
 
 
 Mesa::Mesa(GLuint* VBO, GLuint* IBO)

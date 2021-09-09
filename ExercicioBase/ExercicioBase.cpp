@@ -1,8 +1,4 @@
-/*! \Codigo base para preparar sistema OpenGL e carregar modelos
- 
- *
- * 
- */
+
 
 #include <stdio.h>
 #include <string.h>
@@ -19,6 +15,8 @@
 #include "Icosaedro.h"
 #include "BuleUtah.h"
 #include "ExercicioBase.h"
+
+#include <functional>
 
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
@@ -39,7 +37,7 @@ PersProjInfo PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
 
 unsigned int numTotalIndices, numIndicesMesa, numIndicesIcosaedro, numIndicesBule = 0;
 
-static void RenderSceneCB()
+void ExercicioBase::RenderSceneCB()
 {
     //Ting: limpar o buffer de profundidade 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -82,8 +80,8 @@ static void RenderSceneCB()
 
     glutSwapBuffers();
 }
-
-static void DesenharMesa(Matrix4f WVP) {
+ 
+void ExercicioBase::DesenharMesa(Matrix4f WVP) {
     glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
 
     //desenhar mesa
@@ -100,8 +98,8 @@ static void DesenharMesa(Matrix4f WVP) {
 
     glDrawElements(GL_TRIANGLES, numIndicesMesa, GL_UNSIGNED_INT, 0);
 }
-
-static void DesenharBule(Matrix4f WVP, Matrix4f transformacao)
+ 
+void ExercicioBase::DesenharBule(Matrix4f WVP, Matrix4f transformacao)
 {
 
     WVP = WVP * transformacao;
@@ -120,7 +118,7 @@ static void DesenharBule(Matrix4f WVP, Matrix4f transformacao)
     glDrawElements(GL_TRIANGLES, numIndicesBule, GL_UNSIGNED_INT, 0);
 }
 
-static void DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao)
+void ExercicioBase::DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao)
 {
     WVP = WVP * transformacao;
 
@@ -137,22 +135,18 @@ static void DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao)
 
     glDrawElements(GL_TRIANGLES, numIndicesIcosaedro, GL_UNSIGNED_INT, 0);
 }
-
-static void KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
+    
+void ExercicioBase::KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
 {
     GameCamera.OnKeyboard(key);
 }
-
-
-static void SpecialKeyboardCB(int key, int mouse_x, int mouse_y)
+      
+void ExercicioBase::SpecialKeyboardCB(int key, int mouse_x, int mouse_y)
 {
     GameCamera.OnKeyboard(key);
 }
-
-
-
-
-static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
+    
+void ExercicioBase::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
 {
     GLuint ShaderObj = glCreateShader(ShaderType);
 
@@ -183,11 +177,8 @@ static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum Shad
 
     glAttachShader(ShaderProgram, ShaderObj);
 }
-
-const char* pVSFileName = "shader.vs";
-const char* pFSFileName = "shader.fs";
-
-static void CompileShaders()
+     
+void ExercicioBase::CompileShaders()
 {
     GLuint ShaderProgram = glCreateProgram();
 
@@ -239,23 +230,18 @@ static void CompileShaders()
     glUseProgram(ShaderProgram);
 }
 
-int main(int argc, char** argv)
+int ExercicioBase::startup()
 {
-#ifdef _WIN64
+    #ifdef _WIN64
     srand(GetCurrentProcessId());
-#else
+    #else
     srandom(getpid());
-#endif
-
-    glutInit(&argc, argv);
-
-    //Ting: para algumas placas onboard eh necessario configurar profile.
-    glutInitContextVersion(4, 5);// Major version and minor version
+    #endif 
+    
+    glutInitContextVersion(4, 5);
     glutInitContextProfile(GLUT_CORE_PROFILE);
 
-    //Ting: habilitar o buffer de profundidade
-
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     int x = 200;
@@ -264,7 +250,6 @@ int main(int argc, char** argv)
     int win = glutCreateWindow("Exercicio IA725");
     printf("window id: %d\n", win);
 
-    // Must be done after glut is initialized!
     GLenum res = glewInit();
     if (res != GLEW_OK) {
         fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
@@ -274,6 +259,12 @@ int main(int argc, char** argv)
     GLclampf Red = 0.0f, Green = 0.0f, Blue = 0.0f, Alpha = 0.0f;
     glClearColor(Red, Green, Blue, Alpha);
 
+}
+
+ExercicioBase::ExercicioBase(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    startup();
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
     glCullFace(GL_BACK);
@@ -284,9 +275,6 @@ int main(int argc, char** argv)
     // apenas wireframe
    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-  //Ting: Pela especificacao, deve-se criar um array object (VAO) que contem o estado dos vertices
-  //Create an object that stores all of the state needed to suppl vertex data
-   
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     glGenBuffers(3, VBO);
@@ -294,7 +282,7 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
     Mesa* mesa = new Mesa(&VBO[0], &IBO[0]);
     numIndicesMesa = mesa->RetornarNumIndices();
-  
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
     BuleUtah* bule = new BuleUtah(&VBO[1], &IBO[1]);
     numIndicesBule = bule->RetornarNumIndices();
@@ -302,16 +290,37 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
     Icosaedro* icosaedro = new Icosaedro(&VBO[2], &IBO[2], 3);
     numIndicesIcosaedro = icosaedro->RetornarNumIndices();
-
+    
     CompileShaders();
 
-    glutDisplayFunc(RenderSceneCB);
-    glutKeyboardFunc(KeyboardCB);
-    glutSpecialFunc(SpecialKeyboardCB);
+    glutDisplayFunc(callback_RenderSceneCB);
+    glutKeyboardFunc(callback_KeyboardCB);
+    glutSpecialFunc(callback_SpecialKeyboardCB);
 
     CubeWorldTransform.Rotate(-90.0f, 0.0f, 0.0f);
 
     glutMainLoop();
 
+}
+
+void ExercicioBase::callback_RenderSceneCB()
+{
+    exercicioBase->RenderSceneCB();
+}
+
+void ExercicioBase::callback_KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
+{
+    exercicioBase->KeyboardCB(key, mouse_x,mouse_y);
+}
+
+void ExercicioBase::callback_SpecialKeyboardCB(int key, int mouse_x, int mouse_y)
+{
+    exercicioBase->SpecialKeyboardCB(key, mouse_x, mouse_y);
+}
+
+int main(int argc, char** argv)
+{
+    ExercicioBase* exercicioBase = new ExercicioBase(argc, argv);
+         
     return 0;
 }
