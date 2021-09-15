@@ -16,8 +16,24 @@ public:
 	/// <param name="argc">Nao utilizado</param>
 	/// <param name="argv">Nao utilizado</param>
 	ExercicioBase(int argc, char** argv);
+	/// <summary>
+	/// Cria o menu com o botao direito
+	/// </summary>
+	/// <param name="opcao"></param>
 	static void callback_MenuCB(int opcao);
+	/// <summary>
+	/// Recebe os comandos do mouse
+	/// </summary>
+	/// <param name="button">botao utilizado</param>
+	/// <param name="state">se o botao foi pressionado ou solto</param>
+	/// <param name="x">posicao x durante o evento</param>
+	/// <param name="y">posicao y durante o evento</param>
 	static void callback_MouseCB(int button, int state, int x, int y);
+	/// <summary>
+	/// Recebe o movimento do mouse na janela
+	/// </summary>
+	/// <param name="x">Movimento no eixo x</param>
+	/// <param name="y">Movimento no eixo y</param>
 	static void callback_MotionCB(int x, int y);
 	/// <summary>
 	/// Funcao estatica para adaptar os callbacks do glut (linguagem C) para o metodo correspondente em c++
@@ -77,11 +93,26 @@ private:
 	 /// <param name="ShaderProgram">Referencia para o shader</param>
 	 /// <param name="pShaderText">Ponteiro para o conteudo do arquivo shader</param>
 	 /// <param name="ShaderType">Tipo do shader</param>
-	 /// 
-	 void MenuCB(int opcao);
-	 void MouseCB(int button, int state, int x, int y);
-	 void MotionCB(int x, int y);
 	 void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType);
+	 /// <summary>
+	 /// Cria o menu com o botao direito
+	 /// </summary>
+	 /// <param name="opcao"></param>
+	 void MenuCB(int opcao);
+	 /// <summary>
+	 /// Recebe os comandos do mouse
+	 /// </summary>
+	 /// <param name="button">botao utilizado</param>
+	 /// <param name="state">se o botao foi pressionado ou solto</param>
+	 /// <param name="x">posicao x durante o evento</param>
+	 /// <param name="y">posicao y durante o evento</param>
+	 void MouseCB(int button, int state, int x, int y);
+	 /// <summary>
+	 /// Recebe o movimento do mouse na janela
+	 /// </summary>
+	 /// <param name="x">Movimento no eixo x</param>
+	 /// <param name="y">Movimento no eixo y</param>
+	 void MotionCB(int x, int y);
 
 	 /// <summary>
 	 /// Adiciona e compila o shader.fs e shader.vs

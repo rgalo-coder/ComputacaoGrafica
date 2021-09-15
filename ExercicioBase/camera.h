@@ -31,7 +31,6 @@ public:
     /// Construtor da classe Camera
     /// </summary>
     Camera();
-    void OnMouse(int button, int state, int x, int y);
     /// <summary>
     /// Define posicao da camera
     /// </summary>

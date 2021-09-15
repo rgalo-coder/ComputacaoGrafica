@@ -9,6 +9,12 @@ Estou tentando compilar no meu raspberry pi com linux mas nao quer funcionar.
 
 Ele ira renderizar o icosaedro, a mesa e o bule de utah ao mesmo tempo.
 
+Controles:
+Seta movimentam a camera
+PageUp PageDown sobem e descem a camera
+Botao esquerdo do mouse: aperte e segure para movimento arcball
+Botao direito do mouse: Menu de selecao
+
 Codigo fonte:
 https://github.com/rgalo-coder/ComputacaoGrafica
 
