@@ -1,5 +1,3 @@
-
-
 #include <stdio.h>
 #include <string.h>
 
@@ -26,14 +24,22 @@ GLuint IBO[3];
 GLuint gWVPLocation;
 GLuint VAO;
 
+ExercicioBase* exercicioBase;
+
+int TipoProjecao;
+
+
 WorldTrans CubeWorldTransform,TransBule, TransIcosaedro, TransMesa;
 
 Camera GameCamera;
+bool mousebotaoesquerdo = false;
+
 
 float FOV = 45.0f;
 float zNear = 1.0f;
 float zFar = 10.0f;
 PersProjInfo PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
+OrthoProjInfo OrthoProjInfo = { 2.0f, -2.0f , -2.0f, +2.0f, zNear, zFar };
 
 unsigned int numTotalIndices, numIndicesMesa, numIndicesIcosaedro, numIndicesBule = 0;
 
@@ -43,23 +49,29 @@ void ExercicioBase::RenderSceneCB()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 #ifdef _WIN64
-    float YRotationAngle = 0.1f;
+  //  float YRotationAngle = 0.1f;
 #else
     float YRotationAngle = 1.0f;
 #endif
+    auto test = this;
 
     CubeWorldTransform.SetPosition(0.0f, 0.0f, 2.0f);
-
-    CubeWorldTransform.Rotate(0.0f, YRotationAngle, 0.0f);
+   
+  //  CubeWorldTransform.Rotate(0.0f, YRotationAngle, 0.0f);
     Matrix4f World = CubeWorldTransform.GetMatrix();
 
     Matrix4f View = GameCamera.GetMatrix();
 
     Matrix4f Projection;
-    Projection.InitPersProjTransform(PersProjInfo);
+    if (TipoProjecao == PERSPECTIVA)
+        Projection.InitPersProjTransform(PersProjInfo);
+    if (TipoProjecao == PARALELA)
+        Projection.InitOrthoProjTransform(OrthoProjInfo);
 
   
     Matrix4f WVP = Projection * View * World;
+
+
 
     //desenhar mesa
     DesenharMesa(WVP);
@@ -135,17 +147,6 @@ void ExercicioBase::DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao)
 
     glDrawElements(GL_TRIANGLES, numIndicesIcosaedro, GL_UNSIGNED_INT, 0);
 }
-    
-void ExercicioBase::KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
-{
-    GameCamera.OnKeyboard(key);
-}
-      
-void ExercicioBase::SpecialKeyboardCB(int key, int mouse_x, int mouse_y)
-{
-    GameCamera.OnKeyboard(key);
-}
-    
 void ExercicioBase::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
 {
     GLuint ShaderObj = glCreateShader(ShaderType);
@@ -241,7 +242,7 @@ int ExercicioBase::startup()
     glutInitContextVersion(4, 5);
     glutInitContextProfile(GLUT_CORE_PROFILE);
 
-     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     int x = 200;
@@ -274,6 +275,7 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_AUTO_NORMAL);
 
+    TipoProjecao = PERSPECTIVA;
     // apenas wireframe
    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -292,17 +294,40 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
     Icosaedro* icosaedro = new Icosaedro(&VBO[2], &IBO[2], 3);
     numIndicesIcosaedro = icosaedro->RetornarNumIndices();
-    
+  
     CompileShaders();
 
     glutDisplayFunc(callback_RenderSceneCB);
     glutKeyboardFunc(callback_KeyboardCB);
     glutSpecialFunc(callback_SpecialKeyboardCB);
+    glutMouseFunc(callback_MouseCB);
+    glutMotionFunc(callback_MotionCB);
+    
+
+    int opcaomenu = glutCreateMenu(callback_MenuCB);
+    glutAddMenuEntry("Projetiva", 0);
+    glutAddMenuEntry("Ortogonal", 1);
+    glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     CubeWorldTransform.Rotate(-90.0f, 0.0f, 0.0f);
 
     glutMainLoop();
 
+}
+
+void ExercicioBase::callback_MenuCB(int opcao)
+{   
+        exercicioBase->MenuCB(opcao);
+}
+
+void ExercicioBase::callback_MouseCB(int button, int state, int x, int y)
+{
+    exercicioBase->MouseCB(button, state, x, y);
+}
+
+void ExercicioBase::callback_MotionCB(int x, int y)
+{
+    exercicioBase->MotionCB(x, y);
 }
 
 void ExercicioBase::callback_RenderSceneCB()
@@ -318,6 +343,43 @@ void ExercicioBase::callback_KeyboardCB(unsigned char key, int mouse_x, int mous
 void ExercicioBase::callback_SpecialKeyboardCB(int key, int mouse_x, int mouse_y)
 {
     exercicioBase->SpecialKeyboardCB(key, mouse_x, mouse_y);
+}
+    
+void ExercicioBase::KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
+{
+    GameCamera.OnKeyboard(key);
+}
+ 
+
+void ExercicioBase::MouseCB(int button, int state, int x, int y)
+{
+
+    GameCamera.OnMouse(button, state, x, y);
+    CubeWorldTransform.OnMouse(button, state, x, y);
+}
+
+void ExercicioBase::MotionCB(int x, int y)
+{
+
+    CubeWorldTransform.OnMotion(x, y);
+}
+
+void ExercicioBase::SpecialKeyboardCB(int key, int mouse_x, int mouse_y)
+{
+    GameCamera.OnKeyboard(key);
+}
+
+void ExercicioBase::MenuCB(int opcao)
+{
+    switch (opcao)
+    {
+    case 0:
+        TipoProjecao = PERSPECTIVA;
+        break;
+    case 1:
+        TipoProjecao = PARALELA;
+        break;
+    }
 }
 
 int main(int argc, char** argv)

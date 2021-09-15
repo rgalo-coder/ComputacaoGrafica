@@ -17,7 +17,8 @@
 */
 
 #include "world_transform.h"
-
+#include <GL/glew.h>
+#include <GL/freeglut.h>
 
 void WorldTrans::SetScale(float scale)
 {
@@ -40,6 +41,33 @@ void WorldTrans::SetPosition(float x, float y, float z)
     m_pos.z = z;
 }
 
+void WorldTrans::OnMouse(int button, int state, int x, int y)
+{
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+    {
+        botaoesquerdo = true;
+        x0 = x;
+        y0 = y;
+        
+    }
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
+    {
+        botaoesquerdo = false;
+    }
+  
+}
+
+void WorldTrans::OnMotion(int x, int y)
+{
+    if (botaoesquerdo == true)
+    {
+        m_rotation.x = m_rotation.x + (y -y0)/3;
+        m_rotation.y = m_rotation.y + (x - x0)/3;
+        y0 = y;
+        x0 = x;
+    }
+}
+
 
 void WorldTrans::Rotate(float x, float y, float z)
 {
@@ -48,9 +76,18 @@ void WorldTrans::Rotate(float x, float y, float z)
     m_rotation.z += z;
 }
 
+void WorldTrans::RotacaoArcBall()
+{
+    if (botaoesquerdo == true)
+    {
+       
+    }
+}
 
 Matrix4f WorldTrans::GetMatrix()
 {
+    RotacaoArcBall();
+
     Matrix4f Scale;
     Scale.InitScaleTransform(m_scale, m_scale, m_scale);
 

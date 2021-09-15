@@ -53,6 +53,10 @@ class WorldTrans {
     /// <param name="z">Movimento no eixo Z</param>
     void SetPosition(float x, float y, float z);
 
+    void OnMouse(int button, int state, int x, int y);
+
+    void OnMotion(int x, int y);
+
     /// <summary>
 /// Rotaciona objeto alem da rotacao atual
 /// </summary>
@@ -60,6 +64,8 @@ class WorldTrans {
 /// <param name="y">Rotacao no eixo Y (em graus)</param>
 /// <param name="z">Rotacao no eixo Z (em graus)</param>
     void Rotate(float x, float y, float z);
+
+    void RotacaoArcBall();
 
     /// <summary>
     /// Retorna matrix com todas as transformacoes armazenadas na classe
@@ -71,6 +77,8 @@ class WorldTrans {
     float    m_scale    = 1.0f;
     Vector3f m_rotation = Vector3f(0.0f, 0.0f, 0.0f);
     Vector3f m_pos      = Vector3f(0.0f, 0.0f, 0.0f);
+    bool botaoesquerdo;
+    float x0, y0, z0 = 0.0f;
 };
 
 

@@ -15,6 +15,11 @@ Camera::Camera()
 
 }
 
+void Camera::OnMouse(int button, int state, int x, int y)
+{
+
+}
+
 
 void Camera::SetPosition(float x, float y, float z)
 {
