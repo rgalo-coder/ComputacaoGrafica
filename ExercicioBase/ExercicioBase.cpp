@@ -354,7 +354,6 @@ void ExercicioBase::KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
 void ExercicioBase::MouseCB(int button, int state, int x, int y)
 {
 
-    GameCamera.OnMouse(button, state, x, y);
     CubeWorldTransform.OnMouse(button, state, x, y);
 }
 
