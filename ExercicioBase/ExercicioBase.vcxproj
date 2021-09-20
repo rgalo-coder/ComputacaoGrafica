@@ -146,8 +146,12 @@
     <CopyFileToFolders Include="..\Lib\freeglutd.dll">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <None Include="..\Lib\glew32.dll" />
-    <None Include="..\Lib\x64\freeglut.dll" />
+    <CopyFileToFolders Include="..\Lib\glew32.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Lib\x64\freeglut.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
     <None Include="build.sh" />
     <None Include="shader.fs" />
     <None Include="shader.vs" />
@@ -174,6 +178,7 @@
     <ClInclude Include="ExercicioBase.h" />
     <ClInclude Include="Icosaedro.h" />
     <ClInclude Include="Mesa.h" />
+    <ClInclude Include="ogldev_math_3d.h" />
     <ClInclude Include="world_transform.h" />
   </ItemGroup>
   <ItemGroup>
