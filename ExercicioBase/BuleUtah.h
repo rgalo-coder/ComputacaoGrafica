@@ -4,9 +4,9 @@
 
 //Ting: eh preciso especificar a variavel
 //extern struct Vertex;
-extern struct Vertex P[];
 
-extern Vertex VerticesPatches[306];
+
+extern struct Vertex VerticesPatches[306];
 
 extern unsigned int IndicesPatche[32][16];
 
