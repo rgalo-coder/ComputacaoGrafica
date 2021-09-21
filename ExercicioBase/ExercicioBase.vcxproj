@@ -143,13 +143,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CopyFileToFolders Include="..\Lib\freeglutd.dll">
-      <FileType>Document</FileType>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="..\Lib\glew32.dll">
       <FileType>Document</FileType>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="..\Lib\x64\freeglut.dll">
+    <CopyFileToFolders Include="..\Lib\freeglut.dll">
+      <FileType>Document</FileType>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="..\Lib\freeglutd.dll">
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <None Include="build.sh" />
@@ -157,9 +157,9 @@
     <None Include="shader.vs" />
   </ItemGroup>
   <ItemGroup>
+    <Library Include="..\Lib\freeglut.lib" />
     <Library Include="..\Lib\freeglutd.lib" />
     <Library Include="..\Lib\glew32.lib" />
-    <Library Include="..\Lib\x64\freeglut.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BuleUtah.cpp" />

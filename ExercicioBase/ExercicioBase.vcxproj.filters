@@ -20,9 +20,9 @@
     <None Include="build.sh" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="..\Lib\x64\freeglut.lib" />
-    <Library Include="..\Lib\freeglutd.lib" />
     <Library Include="..\Lib\glew32.lib" />
+    <Library Include="..\Lib\freeglut.lib" />
+    <Library Include="..\Lib\freeglutd.lib" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp">
@@ -81,7 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="..\Lib\glew32.dll" />
+    <CopyFileToFolders Include="..\Lib\freeglut.dll" />
     <CopyFileToFolders Include="..\Lib\freeglutd.dll" />
-    <CopyFileToFolders Include="..\Lib\x64\freeglut.dll" />
   </ItemGroup>
 </Project>
