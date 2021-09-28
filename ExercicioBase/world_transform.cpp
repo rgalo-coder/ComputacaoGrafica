@@ -61,7 +61,7 @@ void WorldTrans::OnMotion(int x, int y)
 {
     if (botaoesquerdo == true)
     {
-        m_rotation.x = m_rotation.x + (y -y0)/3;
+        m_rotation.x = m_rotation.x - (y -y0)/3;
         m_rotation.y = m_rotation.y + (x - x0)/3;
         y0 = y;
         x0 = x;

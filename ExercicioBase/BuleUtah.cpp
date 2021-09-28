@@ -15,8 +15,9 @@
 
 
 Vertex P[20000];
-GLuint* VBO;
-GLuint* IBO;
+
+
+
 unsigned int IndicesBule[60000] = {};
 
 BuleUtah::BuleUtah(GLuint* VBO, GLuint* IBO)

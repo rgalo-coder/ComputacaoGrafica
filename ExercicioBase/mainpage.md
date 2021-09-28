@@ -19,6 +19,8 @@ Botao esquerdo do mouse: aperte e segure para movimento arcball
 
 Botao direito do mouse: Menu de selecao
 
+Q e A movem o plano de corte para frente e para tras
+
 
 **Codigo fonte:**
 https://github.com/rgalo-coder/ComputacaoGrafica

@@ -247,6 +247,7 @@ int ExercicioBase::startup()
 
     int x = 200;
     int y = 100;
+
     glutInitWindowPosition(x, y);
     int win = glutCreateWindow("Exercicio IA725");
     printf("window id: %d\n", win);
@@ -268,9 +269,10 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
 {
     glutInit(&argc, argv);
     startup();
-    glEnable(GL_CULL_FACE);
+  //  glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
-    glCullFace(GL_BACK);
+ //   glCullFace(GL_BA vCK);
+    glCullFace(GL_FRONT_AND_BACK);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_AUTO_NORMAL);
@@ -348,6 +350,8 @@ void ExercicioBase::callback_SpecialKeyboardCB(int key, int mouse_x, int mouse_y
 void ExercicioBase::KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
 {
     GameCamera.OnKeyboard(key);
+    zNear = GameCamera.GetzNear();
+    PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
 }
  
 

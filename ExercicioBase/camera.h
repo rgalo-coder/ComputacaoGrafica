@@ -31,6 +31,7 @@ public:
     /// Construtor da classe Camera
     /// </summary>
     Camera();
+    float GetzNear();
     /// <summary>
     /// Define posicao da camera
     /// </summary>
@@ -50,6 +51,7 @@ public:
     /// </summary>
     /// <returns>Matrix 4x4 com posicao da camera</returns>
     Matrix4f GetMatrix();
+    float zNear = 1.0f;
 
 private:
 

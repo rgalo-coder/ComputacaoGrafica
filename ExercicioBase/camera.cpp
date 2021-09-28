@@ -15,7 +15,10 @@ Camera::Camera()
 
 }
 
-
+float Camera::GetzNear()
+{
+    return zNear;
+}
 
 void Camera::SetPosition(float x, float y, float z)
 {
@@ -74,6 +77,16 @@ void Camera::OnKeyboard(unsigned char Key)
             m_speed = 0.1f;
         }
         printf("Speed changed to %f\n", m_speed);
+        break;
+
+    case 'q':
+        zNear += 0.05f;
+        printf("plano de corte alterado para %f\n", zNear);
+        break;
+
+    case 'a':
+        zNear -= 0.05f;
+        printf("plano de corte alterado para %f\n", zNear);
         break;
 
     case 'z':
