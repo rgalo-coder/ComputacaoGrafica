@@ -58,11 +58,11 @@ void Camera::OnKeyboard(unsigned char Key)
         }
         break;
 
-    case GLUT_KEY_PAGE_UP:
+    case 'o':
         m_pos.y += m_speed;
         break;
 
-    case GLUT_KEY_PAGE_DOWN:
+    case 'l':
         m_pos.y -= m_speed;
         break;
 

@@ -21,13 +21,29 @@ public:
 	/// </summary>
 	/// <returns></returns>
 	unsigned int RetornarNumIndices();
+
+	void HSVtoRGB(float H, float S, float V, float* rgb);
+
+	void OnKeyboard(unsigned char Key);
+
+
+
+
+
 private:
+	GLuint* VBO;
+	GLuint* IBO;
+	void AtualizarBuffer();
+
+	float CorHSV_h, CorHSV_s, CorHSV_v;
+	void AtualizarCor();
 	int indicevertice;
 	/// <summary>
 	/// Subdivide icosaedro pelo numero de graus desejado
 	/// </summary>
 	void SubdividirIcosaedro(int graus);
 
+	float cor[3];
 	/// <summary>
 	/// Copia vetores 2 para vetores 1
 	/// </summary>

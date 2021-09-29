@@ -22,6 +22,7 @@
 GLuint VBO[3];
 GLuint IBO[3];
 GLuint gWVPLocation;
+GLuint gCorHSVIcosaedro;
 GLuint VAO;
 
 ExercicioBase* exercicioBase;
@@ -34,6 +35,8 @@ WorldTrans CubeWorldTransform,TransBule, TransIcosaedro, TransMesa;
 Camera GameCamera;
 bool mousebotaoesquerdo = false;
 
+Icosaedro* icosaedro;
+
 
 float FOV = 45.0f;
 float zNear = 1.0f;
@@ -42,6 +45,10 @@ PersProjInfo PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
 OrthoProjInfo OrthoProjInfo = { 2.0f, -2.0f , -2.0f, +2.0f, zNear, zFar };
 
 unsigned int numTotalIndices, numIndicesMesa, numIndicesIcosaedro, numIndicesBule = 0;
+
+//float CorIcosaedroHSV[3] = { 0.16,0.5,0.5 };
+////float CorIcosaedroHSV[3] = { 1,1,1 };
+//float CorIcosaedroHSVNulo[3] = { 0.0,0.0,0.0 };
 
 void ExercicioBase::RenderSceneCB()
 {
@@ -133,7 +140,7 @@ void ExercicioBase::DesenharBule(Matrix4f WVP, Matrix4f transformacao)
 void ExercicioBase::DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao)
 {
     WVP = WVP * transformacao;
-
+    float CorIcosaedroHSVNulo[3] = { 0.0,0.0,0.0 };
     glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[2]);
@@ -146,6 +153,7 @@ void ExercicioBase::DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
     glDrawElements(GL_TRIANGLES, numIndicesIcosaedro, GL_UNSIGNED_INT, 0);
+  
 }
 void ExercicioBase::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
 {
@@ -294,7 +302,7 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
     numIndicesBule = bule->RetornarNumIndices();
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
-    Icosaedro* icosaedro = new Icosaedro(&VBO[2], &IBO[2], 3);
+    icosaedro = new Icosaedro(&VBO[2], &IBO[2], 3);
     numIndicesIcosaedro = icosaedro->RetornarNumIndices();
   
     CompileShaders();
@@ -352,6 +360,7 @@ void ExercicioBase::KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
     GameCamera.OnKeyboard(key);
     zNear = GameCamera.GetzNear();
     PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
+    icosaedro->OnKeyboard(key);
 }
  
 
@@ -370,6 +379,7 @@ void ExercicioBase::MotionCB(int x, int y)
 void ExercicioBase::SpecialKeyboardCB(int key, int mouse_x, int mouse_y)
 {
     GameCamera.OnKeyboard(key);
+
 }
 
 void ExercicioBase::MenuCB(int opcao)

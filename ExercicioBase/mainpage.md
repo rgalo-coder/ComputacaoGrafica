@@ -13,13 +13,15 @@ Ele ira renderizar o icosaedro, a mesa e o bule de utah ao mesmo tempo.
 
 Seta movimentam a camera
 
-PageUp PageDown sobem e descem a camera
+O e L sobem e descem a camera
 
 Botao esquerdo do mouse: aperte e segure para movimento arcball
 
 Botao direito do mouse: Menu de selecao
 
 Q e A movem o plano de corte para frente e para tras
+
+H, S e V mudam o valor dos componentes HSV da cor, segurar shift para diminuir valores
 
 
 **Codigo fonte:**

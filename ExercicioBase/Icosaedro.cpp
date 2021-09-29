@@ -9,6 +9,8 @@
 #include "ogldev_math_3d.h"
 #include "Icosaedro.h"
 
+#include "world_transform.h"
+
 unsigned int Indices[16000] = { 0,4,1,0,9,4,9,5,4,4,5,8,4,8,1,
 	  8,10,1,8,3,10,5,3,8,5,2,3,2,7,3,
 	  7,10,3,7,6,10,7,11,6,11,0,6,0,1,6,
@@ -22,13 +24,18 @@ Vertex Vertices[3000];
 Vertex Vertices2[3000];
 
 
-Icosaedro::Icosaedro(GLuint* VBO, GLuint* IBO, int graus)
+Icosaedro::Icosaedro(GLuint* _VBO, GLuint* _IBO, int graus)
 {
-
+	VBO = _VBO;
+	IBO = _IBO;
 	indicevertice = 60;
 	const float X = 0.525731112119133606f;
 	const float Z = 0.850650808352039932f;
 	const float N = 0.0f;
+
+	CorHSV_h = 60;
+	CorHSV_s = 80;
+	CorHSV_v = 80;
 
 	float _vertices[12][3] =
 	{
@@ -44,9 +51,7 @@ Icosaedro::Icosaedro(GLuint* VBO, GLuint* IBO, int graus)
 		Vertices[i].pos.y = _vertices[i][1];
 		Vertices[i].pos.z = _vertices[i][2];
 
-		float amarelo = RandomFloat() / 0.6f + 0.2f;		
-		Vertices[i].color = { amarelo , amarelo, 0.0f };
-		
+				
 		
 	}
 
@@ -60,7 +65,12 @@ Icosaedro::Icosaedro(GLuint* VBO, GLuint* IBO, int graus)
 	}
 	SubdividirIcosaedro(graus);
 
+	AtualizarBuffer();
 
+}
+
+void Icosaedro::AtualizarBuffer()
+{
 	glGenBuffers(1, VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
@@ -105,8 +115,12 @@ int Icosaedro::AdicionarVertice(Vertex* vertices, unsigned int* indices, int* po
 	{
 		//nao encontrou vertice entao ele é adicionado na tabela de vertices
 		vertices[*posV] = ponto;
-		float amarelo = RandomFloat() / 0.6f + 0.2f;
-		vertices[*posV].color = { amarelo, amarelo, 0.0f };
+
+		float cor[3] = {0.0,0.0,0.0};
+		HSVtoRGB(CorHSV_h, CorHSV_s, CorHSV_v, cor);
+		Vector3f Cor = Vector3f(cor);
+		vertices[*posV].color = Cor;
+
 		*posV = *posV + 1;
 
 		//adiciona vertice ao indice
@@ -187,8 +201,7 @@ void Icosaedro::SubdividirIcosaedro(int graus)
 			indicevertice = AdicionarVertice(Vertices2, Indices2, &posIndices, &posVertices, pontoMedioCA);
 
 
-		}
-		Vertices2[10].color = { 1.0f,0.0f,0.0f };
+		}		
 		CopiarVet2para1();  //copia valores dos vetores 2 para os vetores 1 para poder repetir iteracao
 	}
 
@@ -213,4 +226,104 @@ void Icosaedro::CopiarVet2para1()
 unsigned int Icosaedro::RetornarNumIndices() 
 {
 	return indicevertice;
+}
+
+
+void Icosaedro::HSVtoRGB(float H, float S, float V, float* rgb)
+{
+	if (H > 360 || H < 0 || S>100 || S < 0 || V>100 || V < 0) {
+
+		return ;
+	}
+	float s = S / 100;
+	float v = V / 100;
+	float C = s * v;
+	float X = C * (1 - abs(fmod(H / 60.0, 2) - 1));
+	float m = v - C;
+	float r, g, b;
+	if (H >= 0 && H < 60) {
+		r = C, g = X, b = 0;
+	}
+	else if (H >= 60 && H < 120) {
+		r = X, g = C, b = 0;
+	}
+	else if (H >= 120 && H < 180) {
+		r = 0, g = C, b = X;
+	}
+	else if (H >= 180 && H < 240) {
+		r = 0, g = X, b = C;
+	}
+	else if (H >= 240 && H < 300) {
+		r = X, g = 0, b = C;
+	}
+	else {
+		r = C, g = 0, b = X;
+	}
+	float R = (r + m);
+	float G = (g + m);
+	float B = (b + m);
+	rgb[0] = R;
+	rgb[1] = G;
+	rgb[2] = B;
+};
+
+
+void Icosaedro::AtualizarCor()
+{
+	for (int i = 0; i < 3000; i++)
+	{
+		
+		HSVtoRGB(CorHSV_h, CorHSV_s, CorHSV_v, cor);
+		Vector3f Cor = Vector3f(cor);
+		Vertices[i].color = Cor;
+		
+
+	}
+	AtualizarBuffer();
+}
+
+void Icosaedro::OnKeyboard(unsigned char Key)
+{
+	switch (Key) {
+
+	
+
+	case 'H' :
+		if (CorHSV_h > 0)
+				CorHSV_h -= 10.0f;	
+		printf("Changed Hue to %f\n", CorHSV_h);
+		break;
+	case 'h':
+		if (CorHSV_h < 360)
+				CorHSV_h += 10.0f;
+		printf("Changed Hue to %f\n", CorHSV_h);
+		break;
+
+
+	case 'S':
+		if (CorHSV_s > 0)
+			CorHSV_s -= 10.0f;
+		printf("Changed Saturation to %f\n", CorHSV_s);
+		break;
+	case 's':
+		if (CorHSV_s < 100)
+			CorHSV_s += 10.0f;
+		printf("Changed Saturation to %f\n", CorHSV_s);
+		break;
+
+	case 'V':
+		if (CorHSV_v > 0)
+			CorHSV_v -= 10.0f;
+		printf("Changed Value to %f\n", CorHSV_v);
+		break;
+	case 'v':
+		if (CorHSV_v < 100)
+			CorHSV_v += 10.0f;
+		printf("Changed Value to %f\n", CorHSV_v);
+		break;
+
+
+	}
+	auto test = this;
+	AtualizarCor();
 }

@@ -48,6 +48,8 @@ public:
 	/// </summary>
 	static void callback_SpecialKeyboardCB(int key, int mouse_x, int mouse_y);
 
+	
+
 
 private:
 	/// <summary>
@@ -87,6 +89,7 @@ private:
 	 /// <param name="mouse_x">Posicao X do mouse quando a tecla foi pressionada</param>
 	 /// <param name="mouse_y">Posicao Y do mouse quando a tecla foi pressionad</param>
 	 void SpecialKeyboardCB(int key, int mouse_x, int mouse_y);
+
 	 /// <summary>
 	 /// Adiciona arquivo shader ao OpenGL
 	 /// </summary>
