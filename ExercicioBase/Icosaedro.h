@@ -25,7 +25,7 @@ public:
 	void HSVtoRGB(float H, float S, float V, float* rgb);
 
 	void OnKeyboard(unsigned char Key);
-
+	unsigned int RetornarNumVertices();
 
 
 
@@ -64,7 +64,12 @@ private:
 	/// Adiciona determinado ponto no vetor de vertices
 	/// </summary>
 	/// <returns>Indice qual a posicao do vetor de indices que o ponto foi adicionado</returns>
-	int AdicionarVertice(Vertex* vertices, unsigned int* indices, int* posI, int* posV, Vertex ponto);
+	int AdicionarVertice(Vertex* vertices, unsigned int* indices, unsigned int* posI, unsigned int* posV, Vertex ponto);
+
+	unsigned int posIndices;
+	unsigned int posVertices;
+	Vector3f Cor;
+
 
 };
 

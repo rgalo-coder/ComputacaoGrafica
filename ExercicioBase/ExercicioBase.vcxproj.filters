@@ -15,8 +15,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shader.fs" />
-    <None Include="shader.vs" />
+    <None Include="fs.glsl" />
+    <None Include="vs.glsl" />
     <None Include="build.sh" />
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +73,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ogldev_math_3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Iluminacao.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

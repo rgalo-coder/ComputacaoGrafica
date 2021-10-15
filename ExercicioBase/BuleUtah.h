@@ -52,5 +52,7 @@ private:
 	/// <summary>
 	/// Total de indices
 	/// </summary>
-	unsigned int totalIndices;
+
+	unsigned int nVertices = 0;
+	unsigned int nIndices = 0;
 };

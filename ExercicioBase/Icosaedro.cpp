@@ -22,10 +22,12 @@ unsigned int Indices2[16000];
 
 Vertex Vertices[3000];
 Vertex Vertices2[3000];
+Vertex VerticesComNormal[3000];
 
 
 Icosaedro::Icosaedro(GLuint* _VBO, GLuint* _IBO, int graus)
 {
+	
 	VBO = _VBO;
 	IBO = _IBO;
 	indicevertice = 60;
@@ -36,6 +38,9 @@ Icosaedro::Icosaedro(GLuint* _VBO, GLuint* _IBO, int graus)
 	CorHSV_h = 60;
 	CorHSV_s = 80;
 	CorHSV_v = 80;
+
+	HSVtoRGB(CorHSV_h, CorHSV_s, CorHSV_v, cor);
+	
 
 	float _vertices[12][3] =
 	{
@@ -50,7 +55,7 @@ Icosaedro::Icosaedro(GLuint* _VBO, GLuint* _IBO, int graus)
 		Vertices[i].pos.x = _vertices[i][0];
 		Vertices[i].pos.y = _vertices[i][1];
 		Vertices[i].pos.z = _vertices[i][2];
-
+		Vertices[i].color = Vector3f(cor);
 				
 		
 	}
@@ -63,7 +68,12 @@ Icosaedro::Icosaedro(GLuint* _VBO, GLuint* _IBO, int graus)
 		Indices[j + 1] = temp;
 
 	}
-	SubdividirIcosaedro(graus);
+
+	posVertices = 12;
+	posIndices = 60;
+//	SubdividirIcosaedro(graus);
+	SubdividirIcosaedro(1);
+	CalcularNormalVertices(Vertices, posVertices, Indices, indicevertice);
 
 	AtualizarBuffer();
 
@@ -73,11 +83,11 @@ void Icosaedro::AtualizarBuffer()
 {
 	glGenBuffers(1, VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, posVertices*sizeof(float)*9 , Vertices, GL_STATIC_DRAW);
 
 	glGenBuffers(1, IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,  posIndices * sizeof(int), Indices, GL_STATIC_DRAW);
 
 }
 
@@ -108,7 +118,7 @@ int Icosaedro::Buscar(Vertex* vertices, int size, Vertex target)
 	return -1;
 }
 
-int Icosaedro::AdicionarVertice(Vertex* vertices, unsigned int* indices, int* posI, int* posV, Vertex ponto)
+int Icosaedro::AdicionarVertice(Vertex* vertices, unsigned int* indices, unsigned int* posI, unsigned int* posV, Vertex ponto)
 {
 	int resultado = Buscar(Vertices2, *posV, ponto);
 	if (resultado == -1)
@@ -116,10 +126,7 @@ int Icosaedro::AdicionarVertice(Vertex* vertices, unsigned int* indices, int* po
 		//nao encontrou vertice entao ele é adicionado na tabela de vertices
 		vertices[*posV] = ponto;
 
-		float cor[3] = {0.0,0.0,0.0};
-		HSVtoRGB(CorHSV_h, CorHSV_s, CorHSV_v, cor);
-		Vector3f Cor = Vector3f(cor);
-		vertices[*posV].color = Cor;
+		vertices[*posV].color = Vector3f(cor);
 
 		*posV = *posV + 1;
 
@@ -143,8 +150,8 @@ void Icosaedro::SubdividirIcosaedro(int graus)
 	
 	for (int iteracoes = 1; iteracoes <= graus; iteracoes++)
 	{
-		int posIndices = 0;
-		int posVertices = 0;		
+		posIndices = 0;
+		posVertices = 0;		
 		int indicePontoA, indicePontoB, indicePontoC;
 		Vertex pontoA, pontoB, pontoC;
 		Vertex pontoMedioAB, pontoMedioBC, pontoMedioCA;
@@ -228,6 +235,11 @@ unsigned int Icosaedro::RetornarNumIndices()
 	return indicevertice;
 }
 
+unsigned int Icosaedro::RetornarNumVertices()
+{
+	return posVertices;
+}
+
 
 void Icosaedro::HSVtoRGB(float H, float S, float V, float* rgb)
 {
@@ -272,12 +284,9 @@ void Icosaedro::AtualizarCor()
 {
 	for (int i = 0; i < 3000; i++)
 	{
+		HSVtoRGB(CorHSV_h, CorHSV_s, CorHSV_v, cor);		
+		Vertices[i].color = Vector3f(cor);
 		
-		HSVtoRGB(CorHSV_h, CorHSV_s, CorHSV_v, cor);
-		Vector3f Cor = Vector3f(cor);
-		Vertices[i].color = Cor;
-		
-
 	}
 	AtualizarBuffer();
 }
@@ -327,3 +336,10 @@ void Icosaedro::OnKeyboard(unsigned char Key)
 	auto test = this;
 	AtualizarCor();
 }
+
+
+
+
+
+
+

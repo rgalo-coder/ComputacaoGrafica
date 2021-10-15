@@ -1,4 +1,4 @@
-/*
+ /*
 
         Copyright 2010 Etay Meiri
 
@@ -31,11 +31,23 @@ Vector3f Vector3f::Cross(const Vector3f& v) const
     return Vector3f(_x, _y, _z);
 }
 
+Vector3f operator*(const Vector3f& l, const Vector3f& r)
+{
+
+    float x = (l.x * r.x);
+    float y = (l.y * r.y);
+    float z = (l.z * r.z);
+
+    Vector3f ret(x, y, z);
+
+    return ret;
+}
+
 Vector3f& Vector3f::Normalize()
 {
     const float Length = sqrtf(x * x + y * y + z * z);
 
-    assert(Length != 0);
+    if(Length == 0) return *this;
 
     x /= Length;
     y /= Length;
@@ -55,6 +67,14 @@ void Vector3f::Rotate(float Angle, const Vector3f& V)
     x = W.x;
     y = W.y;
     z = W.z;
+}
+
+void Vector3f::MediaNormalizada( const Vector3f& r)
+{
+    x = (x + r.x) / 2;
+    y = (y + r.y) / 2;
+    z = (z + r.z) / 2;
+    this->Normalize();
 }
 
 
@@ -186,7 +206,6 @@ void Matrix4f::InitOrthoProjTransform(const OrthoProjInfo& p)
     m[3][0] = 0.0f;         m[3][1] = 0.0f;         m[3][2] = 0.0f;         m[3][3] = 1.0;
 }
 
-
 float Matrix4f::Determinant() const
 {
         return m[0][0]*m[1][1]*m[2][2]*m[3][3] - m[0][0]*m[1][1]*m[2][3]*m[3][2] + m[0][0]*m[1][2]*m[2][3]*m[3][1] - m[0][0]*m[1][2]*m[2][1]*m[3][3]
@@ -196,7 +215,6 @@ float Matrix4f::Determinant() const
                 + m[0][2]*m[1][1]*m[2][3]*m[3][0] - m[0][2]*m[1][1]*m[2][0]*m[3][3] - m[0][3]*m[1][0]*m[2][1]*m[3][2] + m[0][3]*m[1][0]*m[2][2]*m[3][1]
                 - m[0][3]*m[1][1]*m[2][2]*m[3][0] + m[0][3]*m[1][1]*m[2][0]*m[3][2] - m[0][3]*m[1][2]*m[2][0]*m[3][1] + m[0][3]*m[1][2]*m[2][1]*m[3][0];
 }
-
 
 Matrix4f& Matrix4f::Inverse()
 {
@@ -240,7 +258,6 @@ Matrix4f& Matrix4f::Inverse()
 
         return *this;
 }
-
 
 Quaternion::Quaternion(float Angle, const Vector3f& V)
 {
@@ -306,8 +323,6 @@ Quaternion operator*(const Quaternion& l, const Quaternion& r)
     return ret;
 }
 
-
-
 Vector3f Quaternion::ToDegrees()
 {
     float f[3];
@@ -323,9 +338,38 @@ Vector3f Quaternion::ToDegrees()
     return Vector3f(f);
 }
 
-
 float RandomFloat()
 {
     float Max = RAND_MAX;
     return ((float)RANDOM() / Max);
+}
+
+void CalcularNormalVertices(Vertex* vertices, unsigned int num_vertices, unsigned int* indices, unsigned int num_indices)
+{
+    Vector3f normal, vertice1, vertice2, vertice3, lado1, lado2;
+    unsigned int indice1, indice2, indice3;
+
+    for (unsigned int i = 0; i < num_indices; i = i + 3)
+    {
+
+        indice1 = indices[i];
+        indice2 = indices[i + 1];
+        indice3 = indices[i + 2];
+        vertice1 = vertices[indice1].pos;
+        vertice2 = vertices[indice2].pos;
+        vertice3 = vertices[indice3].pos;
+        vertice1.Normalize();
+        vertice2.Normalize();
+        vertice3.Normalize();
+        lado1 = vertice2 - vertice1;
+        lado2 = vertice3 - vertice1;
+        normal = lado1.Cross(lado2);
+        normal.Normalize();
+
+        vertices[indice1].normal.MediaNormalizada(normal);
+        vertices[indice2].normal.MediaNormalizada(normal);
+        vertices[indice3].normal.MediaNormalizada(normal);
+
+
+    }
 }

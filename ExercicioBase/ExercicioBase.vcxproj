@@ -153,8 +153,8 @@
       <FileType>Document</FileType>
     </CopyFileToFolders>
     <None Include="build.sh" />
-    <None Include="shader.fs" />
-    <None Include="shader.vs" />
+    <None Include="fs.glsl" />
+    <None Include="vs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\Lib\freeglut.lib" />
@@ -177,6 +177,7 @@
     <ClInclude Include="DadosBule.h" />
     <ClInclude Include="ExercicioBase.h" />
     <ClInclude Include="Icosaedro.h" />
+    <ClInclude Include="Iluminacao.h" />
     <ClInclude Include="Mesa.h" />
     <ClInclude Include="ogldev_math_3d.h" />
     <ClInclude Include="world_transform.h" />

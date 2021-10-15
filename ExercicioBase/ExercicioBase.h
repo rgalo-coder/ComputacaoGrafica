@@ -110,6 +110,7 @@ private:
 	 /// <param name="x">posicao x durante o evento</param>
 	 /// <param name="y">posicao y durante o evento</param>
 	 void MouseCB(int button, int state, int x, int y);
+
 	 /// <summary>
 	 /// Recebe o movimento do mouse na janela
 	 /// </summary>
@@ -131,12 +132,12 @@ private:
 	/// <summary>
 	/// Arquivo de Vertex Shader a ser utilizado
 	/// </summary>
-	const char* pVSFileName = "shader.vs";
+	const char* pVSFileName = "vs.glsl";
 
 	/// <summary>
 	/// Arquivo de Fragment Shader a ser utilizado
 	/// </summary>
-	const char* pFSFileName = "shader.fs";
+	const char* pFSFileName = "fs.glsl";
 
 	
 };

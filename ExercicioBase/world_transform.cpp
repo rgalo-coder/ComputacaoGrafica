@@ -76,17 +76,10 @@ void WorldTrans::Rotate(float x, float y, float z)
     m_rotation.z += z;
 }
 
-void WorldTrans::RotacaoArcBall()
-{
-    if (botaoesquerdo == true)
-    {
-       
-    }
-}
 
 Matrix4f WorldTrans::GetMatrix()
 {
-    RotacaoArcBall();
+
 
     Matrix4f Scale;
     Scale.InitScaleTransform(m_scale, m_scale, m_scale);

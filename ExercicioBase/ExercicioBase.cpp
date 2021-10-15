@@ -16,6 +16,7 @@
 
 #include <functional>
 
+
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
 
@@ -24,6 +25,10 @@ GLuint IBO[3];
 GLuint gWVPLocation;
 GLuint gCorHSVIcosaedro;
 GLuint VAO;
+GLuint gLuzLocation;
+GLuint gDirecaoLuzLocation;
+GLuint gWVPLuzLocation;
+GLuint gTranformationLocation;
 
 ExercicioBase* exercicioBase;
 
@@ -36,7 +41,8 @@ Camera GameCamera;
 bool mousebotaoesquerdo = false;
 
 Icosaedro* icosaedro;
-
+Mesa* mesa;
+BuleUtah* bule;
 
 float FOV = 45.0f;
 float zNear = 1.0f;
@@ -44,27 +50,28 @@ float zFar = 10.0f;
 PersProjInfo PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
 OrthoProjInfo OrthoProjInfo = { 2.0f, -2.0f , -2.0f, +2.0f, zNear, zFar };
 
+
+Vector3f Luz = { 1.0f, 1.0f,1.0f };
+
+Vector3f DirecaoLuz = Vector3f( +1.0f, +0.0f,-1.0f );
+Matrix4f Indentidade;
+
+
+
 unsigned int numTotalIndices, numIndicesMesa, numIndicesIcosaedro, numIndicesBule = 0;
 
-//float CorIcosaedroHSV[3] = { 0.16,0.5,0.5 };
-////float CorIcosaedroHSV[3] = { 1,1,1 };
-//float CorIcosaedroHSVNulo[3] = { 0.0,0.0,0.0 };
+
+
+Matrix3f WVPinv;
+bool setWVPinv = false;
 
 void ExercicioBase::RenderSceneCB()
 {
-    //Ting: limpar o buffer de profundidade 
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-#ifdef _WIN64
-  //  float YRotationAngle = 0.1f;
-#else
-    float YRotationAngle = 1.0f;
-#endif
-    auto test = this;
-
     CubeWorldTransform.SetPosition(0.0f, 0.0f, 2.0f);
-   
-  //  CubeWorldTransform.Rotate(0.0f, YRotationAngle, 0.0f);
+
     Matrix4f World = CubeWorldTransform.GetMatrix();
 
     Matrix4f View = GameCamera.GetMatrix();
@@ -74,12 +81,11 @@ void ExercicioBase::RenderSceneCB()
         Projection.InitPersProjTransform(PersProjInfo);
     if (TipoProjecao == PARALELA)
         Projection.InitOrthoProjTransform(OrthoProjInfo);
-
-  
+      
     Matrix4f WVP = Projection * View * World;
 
-
-
+    // Matrix4f WVP = Projection *  World;
+   
     //desenhar mesa
     DesenharMesa(WVP);
 
@@ -91,7 +97,20 @@ void ExercicioBase::RenderSceneCB()
     TransIcosaedro.SetScale(0.1f);
     TransIcosaedro.SetPosition(0.4f, 0.5f, 0.1f);
     DesenharIcosaedro(WVP, TransIcosaedro.GetMatrix());
+    
+    //if (!setWVPinv) {
+    //    Matrix3f WVPinv = Matrix3f(WVP);
+    //    WVPinv.Transpose();
+    //    DirecaoLuz = WVPinv * DirecaoLuz;
+    //    DirecaoLuz.Normalize();
+    //    setWVPinv = true;
+    //}     
+  
+    glUniform3fv(gLuzLocation, 1, Luz);
 
+    glUniform3fv(gDirecaoLuzLocation, 1, DirecaoLuz);
+    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+    
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
 
@@ -101,60 +120,81 @@ void ExercicioBase::RenderSceneCB()
 }
  
 void ExercicioBase::DesenharMesa(Matrix4f WVP) {
-    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
 
+
+    
+    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+    glUniformMatrix4fv(gTranformationLocation, 1, GL_TRUE, &Indentidade.m[0][0]);
+    
     //desenhar mesa
     glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[0]);
 
-    // position
+    //posicao vertice
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), 0);
 
-    // color
+    // cor
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    // normal
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
 
     glDrawElements(GL_TRIANGLES, numIndicesMesa, GL_UNSIGNED_INT, 0);
 }
  
 void ExercicioBase::DesenharBule(Matrix4f WVP, Matrix4f transformacao)
 {
-
-    WVP = WVP * transformacao;
+  //  WVP = WVP * transformacao;
 
     glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+    glUniformMatrix4fv(gTranformationLocation, 1, GL_TRUE, &transformacao.m[0][0]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[1]);
 
+    //posicao vertice
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), 0);
 
-    // color
+    // cor
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    // normal
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
+
 
     glDrawElements(GL_TRIANGLES, numIndicesBule, GL_UNSIGNED_INT, 0);
 }
 
 void ExercicioBase::DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao)
 {
-    WVP = WVP * transformacao;
-    float CorIcosaedroHSVNulo[3] = { 0.0,0.0,0.0 };
+   // WVP = WVP * transformacao;
+
     glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+    glUniformMatrix4fv(gTranformationLocation, 1, GL_TRUE, &transformacao.m[0][0]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[2]);
 
+    //posicao vertice
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), 0);
 
-    // color
+    // cor
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+
+    // normal
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
 
     glDrawElements(GL_TRIANGLES, numIndicesIcosaedro, GL_UNSIGNED_INT, 0);
   
 }
+
 void ExercicioBase::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
 {
     GLuint ShaderObj = glCreateShader(ShaderType);
@@ -223,10 +263,10 @@ void ExercicioBase::CompileShaders()
     }
 
     gWVPLocation = glGetUniformLocation(ShaderProgram, "gWVP");
-    if (gWVPLocation == -1) {
-        printf("Error getting uniform location of 'gWVP'\n");
-        exit(1);
-    }
+    gLuzLocation = glGetUniformLocation(ShaderProgram, "gLuz");
+    gDirecaoLuzLocation = glGetUniformLocation(ShaderProgram, "gDirLuz");
+    gTranformationLocation = glGetUniformLocation(ShaderProgram, "gTrans");
+
 
     glValidateProgram(ShaderProgram);
     glGetProgramiv(ShaderProgram, GL_VALIDATE_STATUS, &Success);
@@ -277,13 +317,14 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
 {
     glutInit(&argc, argv);
     startup();
-  //  glEnable(GL_CULL_FACE);
+   glEnable(GL_CULL_FACE);
+  // glFrontFace(GL_CW);
     glFrontFace(GL_CW);
- //   glCullFace(GL_BA vCK);
-    glCullFace(GL_FRONT_AND_BACK);
+  //  glCullFace(GL_BACK);
+    glCullFace(GL_BACK);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_AUTO_NORMAL);
+ //   glEnable(GL_AUTO_NORMAL);
 
     TipoProjecao = PERSPECTIVA;
     // apenas wireframe
@@ -294,25 +335,27 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
     glGenBuffers(3, VBO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-    Mesa* mesa = new Mesa(&VBO[0], &IBO[0]);
+    mesa = new Mesa(&VBO[0], &IBO[0]);
     numIndicesMesa = mesa->RetornarNumIndices();
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    BuleUtah* bule = new BuleUtah(&VBO[1], &IBO[1]);
+    bule = new BuleUtah(&VBO[1], &IBO[1]);
     numIndicesBule = bule->RetornarNumIndices();
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
     icosaedro = new Icosaedro(&VBO[2], &IBO[2], 3);
     numIndicesIcosaedro = icosaedro->RetornarNumIndices();
-  
+    printf("vertices icosaedro %i", icosaedro->RetornarNumVertices());
+
+    Indentidade.InitIdentity();
+
     CompileShaders();
 
     glutDisplayFunc(callback_RenderSceneCB);
     glutKeyboardFunc(callback_KeyboardCB);
     glutSpecialFunc(callback_SpecialKeyboardCB);
     glutMouseFunc(callback_MouseCB);
-    glutMotionFunc(callback_MotionCB);
-    
+    glutMotionFunc(callback_MotionCB);    
 
     int opcaomenu = glutCreateMenu(callback_MenuCB);
     glutAddMenuEntry("Projetiva", 0);

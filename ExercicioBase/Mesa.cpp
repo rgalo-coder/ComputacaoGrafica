@@ -16,7 +16,9 @@ Cilindro::Cilindro(int _numtriangulos, Vertex base, float raio, float altura, fl
     n = _numtriangulos;
 
     Vertices[0] = base; //centro da base
+    Vertices[0].color = Vector3f(corR, corG, corB);
     Vertices[n + 1] = Vertex(base.pos.x, base.pos.y, base.pos.z + altura); //centro do topo
+    Vertices[n + 1].color = Vector3f(corR, corG, corB);
 
     Indices[0] = 0;
 
@@ -35,7 +37,7 @@ Cilindro::Cilindro(int _numtriangulos, Vertex base, float raio, float altura, fl
 
         //triangulos do topo
         Vertices[i + n + 2] = Vertex(x, y, z + altura);
-        Vertices[i + n + 2].color = Vector3f(0.4, 0.2, 0);
+        Vertices[i + n + 2].color = Vector3f(corR, corG, corB);
 
     }
 
@@ -63,23 +65,25 @@ Cilindro::Cilindro(int _numtriangulos, Vertex base, float raio, float altura, fl
 
         if (i == n - 2)
         {
+            //ultimos triangulos que conectam com o primeiro
             Indices[ind] = 0;
             Indices[ind + 1] = 1;
             Indices[ind + 2] = i + 2;
 
-            Indices[ind + 3] = n + 1;
-            Indices[ind + 5] = n + 2;
-            Indices[ind + 4] = n + i + 3;
+            Indices[ind + 4] = n + 1;
+            Indices[ind + 3] = n + 2;
+            Indices[ind + 5] = n + i + 3;
 
-            Indices[ind + 6] = 1;
-            Indices[ind + 8] = i + 2;
-            Indices[ind + 7] = i + n + 3;
+            Indices[ind + 7] = 1;
+            Indices[ind + 6] = i + 2;
+            Indices[ind + 8] = i + n + 3;
 
             Indices[ind + 9] = 1;
             Indices[ind + 11] = i + n + 3;
             Indices[ind + 10] = n + 2;
 
             ind = ind + 12;
+            break;
         }
     }
 }
@@ -87,7 +91,8 @@ Cilindro::Cilindro(int _numtriangulos, Vertex base, float raio, float altura, fl
 
 unsigned int Cilindro::NumeroVertices()
 {
-    return n * (3 + 3 + 3 + 3);
+    //return n * (3 + 3 + 3 + 3);
+    return 2 * n + 2;
 }
 
 unsigned int Cilindro::NumeroIndices()
@@ -108,11 +113,11 @@ Mesa::Mesa(GLuint* VBO, GLuint* IBO)
     base4 = Vertex(0.4, -0.4, -0.6);
     base5 = Vertex(0, 0, -0.1);
 
-    Cilindro perna1(4, base1, 0.05, 0.5, 0.2, 0.3, 0.0);
-    Cilindro perna2(4, base2, 0.05, 0.5, 0.1, 0.4, 0.0);
-    Cilindro perna3(4, base3, 0.05, 0.5, 0.3, 0.35, 0.0);
-    Cilindro perna4(4, base4, 0.05, 0.5, 0.4, 0.4, 0.0);
-    Cilindro mesa(40, base5, 0.8, 0.1, 0.4, 0.4, 0.0);
+    Cilindro perna1(4, base1, 0.05, 0.5, 0.25f, 0.20f, 0.0);
+    Cilindro perna2(4, base2, 0.05, 0.5, 0.25f, 0.20f, 0.0);
+    Cilindro perna3(4, base3, 0.05, 0.5, 0.25f, 0.20f, 0.0);
+    Cilindro perna4(4, base4, 0.05, 0.5, 0.25f, 0.20f, 0.0);
+    Cilindro mesa(40, base5, 0.8, 0.1, 0.30f, 0.20f, 0.0);
 
     Totalvertices = perna1.NumeroVertices() + perna2.NumeroVertices() + perna3.NumeroVertices() + perna4.NumeroVertices() + mesa.NumeroVertices();
     TotalIndices = perna1.NumeroIndices() + perna2.NumeroIndices() + perna3.NumeroIndices() + perna4.NumeroIndices() + mesa.NumeroIndices();
@@ -180,14 +185,15 @@ Mesa::Mesa(GLuint* VBO, GLuint* IBO)
         j++;
     }
 
+    CalcularNormalVertices(TodosVertices, Totalvertices, TodosIndices, TotalIndices);
 
     glGenBuffers(1, VBO);
     glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-    glBufferData(GL_ARRAY_BUFFER, Totalvertices * sizeof(perna1.Vertices[0]), TodosVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, Totalvertices * sizeof(Vertex), TodosVertices, GL_STATIC_DRAW);
 
     glGenBuffers(1, IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, TotalIndices * sizeof(perna1.Indices[0]), TodosIndices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, TotalIndices * sizeof(unsigned int), TodosIndices, GL_STATIC_DRAW);
 
 }
 

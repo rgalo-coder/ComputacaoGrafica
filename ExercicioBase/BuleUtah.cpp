@@ -22,16 +22,18 @@ unsigned int IndicesBule[60000] = {};
 
 BuleUtah::BuleUtah(GLuint* VBO, GLuint* IBO)
 {
-    totalIndices = 0;
+    
     RenderizarPatches();
+
+    CalcularNormalVertices(P, nVertices, IndicesBule, nIndices);
 
     glGenBuffers(1, VBO);
     glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(P), P, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, nVertices * sizeof(Vertex), P, GL_STATIC_DRAW);
 
     glGenBuffers(1, IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(IndicesBule), IndicesBule, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, nIndices * sizeof(unsigned int), IndicesBule, GL_STATIC_DRAW);
 		
     
 }
@@ -65,15 +67,15 @@ void BuleUtah::RenderizarPatches()
     //numero de subdivioes de cada linha do patch
     int divs = 16; 
     Vertex controlPoints[16];
-	int nVertices = 0;
-	int nIndices = 0;
+	
 	int indicepatch;
     float azulaleatorio;
 
     for (int np = 0; np < 32; ++np) 
 	{
         // set the control points for the current patch                                                                                                                                                    
-        azulaleatorio = RandomFloat()/0.6f  + 0.2f;
+        //azulaleatorio = RandomFloat()/0.6f  + 0.2f;
+        azulaleatorio = 0.9f;
         for (int i = 0; i < 16; ++i)
         {
 			indicepatch = IndicesPatche[np][i];      
@@ -86,6 +88,7 @@ void BuleUtah::RenderizarPatches()
             for (int i = 0; i <= divs; ++i, ++k) 
 			{
                 P[nVertices] = calcularPatchBezier(controlPoints, i / (float)divs, j / (float)divs);
+                P[nVertices].normal = Vector3f(0.0f, 0.0f, 0.0f);
 
                 //azul aleatorio
                 
@@ -111,7 +114,7 @@ void BuleUtah::RenderizarPatches()
 				IndicesBule[nIndices + 4] =	(divs + 1) * j + i + 1 + offset;
 				
 				nIndices = nIndices + 6;
-                totalIndices += nIndices;
+                
             }
         }		      
     }
@@ -119,6 +122,6 @@ void BuleUtah::RenderizarPatches()
 
 unsigned int BuleUtah::RetornarNumIndices() 
 {
-    return totalIndices;
+    return nIndices;
 }
 

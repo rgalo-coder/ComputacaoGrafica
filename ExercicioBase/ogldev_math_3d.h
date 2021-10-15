@@ -115,6 +115,8 @@ struct Vector3f
 
     void Rotate(float Angle, const Vector3f& Axis);
 
+    void MediaNormalizada(const Vector3f& r);
+
     void Print() const
     {
         printf("(%.02f, %.02f, %.02f)", x, y, z);
@@ -365,16 +367,18 @@ public:
 struct Vertex {
     Vector3f pos;
     Vector3f color;
+    Vector3f normal;
 
-    Vertex() {}
+    Vertex() {
+    normal = Vector3f(0.0f, 0.0f, 0.0f);
+    }
 
     Vertex(float x, float y, float z)
     {
         pos = Vector3f(x, y, z);
-        float red = (float)rand() / (float)RAND_MAX;
-        float green = (float)rand() / (float)RAND_MAX;
-        float blue = (float)rand() / (float)RAND_MAX;
-        color = Vector3f(red, green, 0.0f);
+        color = Vector3f(1.0f, 1.0f, 1.0f);
+        normal = Vector3f(0.0f, 0.0f, 0.0f);
+        
     }
 
     //Normalizar vetor
@@ -396,7 +400,47 @@ struct Vertex {
 
 };
 
+class Matrix3f
+{
+public:
+    float m[3][3];
 
+    Matrix3f() {}
+
+    // Initialize the matrix from the top left corner of the 4-by-4 matrix
+    Matrix3f(const Matrix4f& a)
+    {
+        m[0][0] = a.m[0][0]; m[0][1] = a.m[0][1]; m[0][2] = a.m[0][2];
+        m[1][0] = a.m[1][0]; m[1][1] = a.m[1][1]; m[1][2] = a.m[1][2];
+        m[2][0] = a.m[2][0]; m[2][1] = a.m[2][1]; m[2][2] = a.m[2][2];
+    }
+
+    Vector3f operator*(const Vector3f& v) const
+    {
+        Vector3f r;
+
+        r.x = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z;
+        r.y = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z;
+        r.z = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z;
+
+        return r;
+    }
+
+    Matrix3f Transpose() const
+    {
+        Matrix3f n;
+
+        for (unsigned int i = 0; i < 3; i++) {
+            for (unsigned int j = 0; j < 3; j++) {
+                n.m[i][j] = m[j][i];
+            }
+        }
+
+        return n;
+    }
+};
+
+void CalcularNormalVertices(Vertex* vertices, unsigned int num_vertices, unsigned int* indices, unsigned int num_indices);
 
 
 #endif  /* MATH_3D_H */

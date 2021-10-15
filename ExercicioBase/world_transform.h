@@ -65,7 +65,7 @@ class WorldTrans {
 /// <param name="z">Rotacao no eixo Z (em graus)</param>
     void Rotate(float x, float y, float z);
 
-    void RotacaoArcBall();
+   
 
     /// <summary>
     /// Retorna matrix com todas as transformacoes armazenadas na classe
