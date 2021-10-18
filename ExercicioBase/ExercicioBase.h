@@ -123,6 +123,8 @@ private:
 	 /// </summary>
 	 void CompileShaders();
 
+
+
 	 /// <summary>
 	 /// Configura parametros iniciais do GLUT
 	 /// </summary>
@@ -138,6 +140,8 @@ private:
 	/// Arquivo de Fragment Shader a ser utilizado
 	/// </summary>
 	const char* pFSFileName = "fs.glsl";
+
+	void DesenharObjeto(Matrix4f WVP, Matrix4f transformacao, unsigned int numIndices, Material gMaterial, GLuint& _VBO, GLuint& _IBO);
 
 	
 };

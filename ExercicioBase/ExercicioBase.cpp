@@ -29,6 +29,8 @@ GLuint gLuzLocation;
 GLuint gDirecaoLuzLocation;
 GLuint gWVPLuzLocation;
 GLuint gTranformationLocation;
+GLuint gMaterialLocation_ka, gMaterialLocation_ks, gMaterialLocation_kd, gMaterialLocation_shininess;
+GLuint gmodoIluminacaoLocation;
 
 ExercicioBase* exercicioBase;
 
@@ -53,8 +55,8 @@ OrthoProjInfo OrthoProjInfo = { 2.0f, -2.0f , -2.0f, +2.0f, zNear, zFar };
 
 Vector3f Luz = { 1.0f, 1.0f,1.0f };
 
-Vector3f DirecaoLuz = Vector3f( +1.0f, +0.0f,-1.0f );
-Matrix4f Indentidade;
+Vector3f DirecaoLuz = Vector3f( +2.0f, +2.0f,+0.0f );
+Matrix4f Identidade;
 
 
 
@@ -84,32 +86,27 @@ void ExercicioBase::RenderSceneCB()
       
     Matrix4f WVP = Projection * View * World;
 
-    // Matrix4f WVP = Projection *  World;
-   
     //desenhar mesa
-    DesenharMesa(WVP);
+    Material gMaterial = { 0.9,0.4,0.4,30 };
+    DesenharObjeto(WVP, Identidade, numIndicesMesa, gMaterial, VBO[0], IBO[0]);
 
     //desenhar bule
     TransBule.SetScale(0.1f);
-    DesenharBule(WVP, TransBule.GetMatrix());
+    gMaterial = { 0.9,0.9,1.0,80 };
+    DesenharObjeto(WVP, TransBule.GetMatrix(), numIndicesBule, gMaterial, VBO[1], IBO[1]);
 
    //desenhar icosaedro
     TransIcosaedro.SetScale(0.1f);
     TransIcosaedro.SetPosition(0.4f, 0.5f, 0.1f);
-    DesenharIcosaedro(WVP, TransIcosaedro.GetMatrix());
+    gMaterial = { 0.9,0.9,1.0,80 };
+    DesenharObjeto(WVP, TransIcosaedro.GetMatrix(),numIndicesIcosaedro, gMaterial, VBO[2], IBO[2]);
     
-    //if (!setWVPinv) {
-    //    Matrix3f WVPinv = Matrix3f(WVP);
-    //    WVPinv.Transpose();
-    //    DirecaoLuz = WVPinv * DirecaoLuz;
-    //    DirecaoLuz.Normalize();
-    //    setWVPinv = true;
-    //}     
-  
+
     glUniform3fv(gLuzLocation, 1, Luz);
 
     glUniform3fv(gDirecaoLuzLocation, 1, DirecaoLuz);
     glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+    glUniform1i(gmodoIluminacaoLocation, 3);
     
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -119,40 +116,20 @@ void ExercicioBase::RenderSceneCB()
     glutSwapBuffers();
 }
  
-void ExercicioBase::DesenharMesa(Matrix4f WVP) {
 
 
-    
-    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
-    glUniformMatrix4fv(gTranformationLocation, 1, GL_TRUE, &Indentidade.m[0][0]);
-    
-    //desenhar mesa
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[0]);
-
-    //posicao vertice
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), 0);
-
-    // cor
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-
-    // normal
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
-
-    glDrawElements(GL_TRIANGLES, numIndicesMesa, GL_UNSIGNED_INT, 0);
-}
- 
-void ExercicioBase::DesenharBule(Matrix4f WVP, Matrix4f transformacao)
+void ExercicioBase::DesenharObjeto(Matrix4f WVP, Matrix4f transformacao, unsigned int numIndices, Material gMaterial, GLuint &_VBO, GLuint &_IBO)
 {
-  //  WVP = WVP * transformacao;
+    
+    glUniform1f(gMaterialLocation_ka, gMaterial.ka);
+    glUniform1f(gMaterialLocation_kd, gMaterial.kd);
+    glUniform1f(gMaterialLocation_ks, gMaterial.ks);
+    glUniform1f(gMaterialLocation_shininess, gMaterial.shininess);
 
     glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
     glUniformMatrix4fv(gTranformationLocation, 1, GL_TRUE, &transformacao.m[0][0]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, _VBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _IBO);
 
     //posicao vertice
     glEnableVertexAttribArray(0);
@@ -166,34 +143,10 @@ void ExercicioBase::DesenharBule(Matrix4f WVP, Matrix4f transformacao)
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
 
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
 
-    glDrawElements(GL_TRIANGLES, numIndicesBule, GL_UNSIGNED_INT, 0);
 }
 
-void ExercicioBase::DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao)
-{
-   // WVP = WVP * transformacao;
-
-    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
-    glUniformMatrix4fv(gTranformationLocation, 1, GL_TRUE, &transformacao.m[0][0]);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO[2]);
-
-    //posicao vertice
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), 0);
-
-    // cor
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-
-    // normal
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
-
-    glDrawElements(GL_TRIANGLES, numIndicesIcosaedro, GL_UNSIGNED_INT, 0);
-  
-}
 
 void ExercicioBase::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
 {
@@ -266,7 +219,14 @@ void ExercicioBase::CompileShaders()
     gLuzLocation = glGetUniformLocation(ShaderProgram, "gLuz");
     gDirecaoLuzLocation = glGetUniformLocation(ShaderProgram, "gDirLuz");
     gTranformationLocation = glGetUniformLocation(ShaderProgram, "gTrans");
-
+    gTranformationLocation = glGetUniformLocation(ShaderProgram, "gTrans");
+ 
+    gMaterialLocation_ka = glGetUniformLocation(ShaderProgram, "gMaterial.ka");
+    gMaterialLocation_ks = glGetUniformLocation(ShaderProgram, "gMaterial.ks");
+    gMaterialLocation_kd = glGetUniformLocation(ShaderProgram, "gMaterial.kd");
+    gMaterialLocation_shininess = glGetUniformLocation(ShaderProgram, "gMaterial.shininess");
+   
+    gmodoIluminacaoLocation = glGetUniformLocation(ShaderProgram, "modoIluminacao");
 
     glValidateProgram(ShaderProgram);
     glGetProgramiv(ShaderProgram, GL_VALIDATE_STATUS, &Success);
@@ -317,16 +277,12 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
 {
     glutInit(&argc, argv);
     startup();
-   glEnable(GL_CULL_FACE);
-  // glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
-  //  glCullFace(GL_BACK);
     glCullFace(GL_BACK);
-
     glEnable(GL_DEPTH_TEST);
- //   glEnable(GL_AUTO_NORMAL);
-
     TipoProjecao = PERSPECTIVA;
+
     // apenas wireframe
    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -347,7 +303,7 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
     numIndicesIcosaedro = icosaedro->RetornarNumIndices();
     printf("vertices icosaedro %i", icosaedro->RetornarNumVertices());
 
-    Indentidade.InitIdentity();
+    Identidade.InitIdentity();
 
     CompileShaders();
 

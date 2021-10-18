@@ -358,9 +358,6 @@ void CalcularNormalVertices(Vertex* vertices, unsigned int num_vertices, unsigne
         vertice1 = vertices[indice1].pos;
         vertice2 = vertices[indice2].pos;
         vertice3 = vertices[indice3].pos;
-        vertice1.Normalize();
-        vertice2.Normalize();
-        vertice3.Normalize();
         lado1 = vertice2 - vertice1;
         lado2 = vertice3 - vertice1;
         normal = lado1.Cross(lado2);

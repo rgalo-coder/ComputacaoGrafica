@@ -39,8 +39,7 @@ Icosaedro::Icosaedro(GLuint* _VBO, GLuint* _IBO, int graus)
 	CorHSV_s = 80;
 	CorHSV_v = 80;
 
-	HSVtoRGB(CorHSV_h, CorHSV_s, CorHSV_v, cor);
-	
+	HSVtoRGB(CorHSV_h, CorHSV_s, CorHSV_v, cor);	
 
 	float _vertices[12][3] =
 	{
@@ -48,7 +47,6 @@ Icosaedro::Icosaedro(GLuint* _VBO, GLuint* _IBO, int graus)
 	  {N,Z,X}, {N,Z,-X}, {N,-Z,X}, {N,-Z,-X},
 	  {Z,X,N}, {-Z,X, N}, {Z,-X,N}, {-Z,-X, N}
 	};
-
 	
 	for (int i = 0; i < 12; i++)
 	{
@@ -69,14 +67,11 @@ Icosaedro::Icosaedro(GLuint* _VBO, GLuint* _IBO, int graus)
 
 	}
 
-	posVertices = 12;
-	posIndices = 60;
-//	SubdividirIcosaedro(graus);
-	SubdividirIcosaedro(1);
+	//posVertices = 12;
+	//posIndices = 60;
+	SubdividirIcosaedro(graus);	
 	CalcularNormalVertices(Vertices, posVertices, Indices, indicevertice);
-
 	AtualizarBuffer();
-
 }
 
 void Icosaedro::AtualizarBuffer()
@@ -101,8 +96,7 @@ Vertex Icosaedro::PontoMedio(Vertex ponto1, Vertex ponto2)
 }
 
 int Icosaedro::Buscar(Vertex* vertices, int size, Vertex target)
-{
-	
+{	
 	float erro = 0.000001f;
 	for (int i = 0; i <= size; ++i)
 	{
@@ -114,7 +108,6 @@ int Icosaedro::Buscar(Vertex* vertices, int size, Vertex target)
 					return i;
 				}
 	}
-
 	return -1;
 }
 

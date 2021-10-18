@@ -364,6 +364,11 @@ public:
     void InitOrthoProjTransform(const OrthoProjInfo& p);
 };
 
+struct Material
+{
+    float ka, kd, ks, shininess;
+};
+
 struct Vertex {
     Vector3f pos;
     Vector3f color;
