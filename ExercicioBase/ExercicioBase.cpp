@@ -35,6 +35,7 @@ GLuint gmodoIluminacaoLocation;
 ExercicioBase* exercicioBase;
 
 int TipoProjecao;
+int ModoIluminacao=1;
 
 
 WorldTrans CubeWorldTransform,TransBule, TransIcosaedro, TransMesa;
@@ -103,10 +104,11 @@ void ExercicioBase::RenderSceneCB()
     
 
     glUniform3fv(gLuzLocation, 1, Luz);
-
     glUniform3fv(gDirecaoLuzLocation, 1, DirecaoLuz);
     glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
-    glUniform1i(gmodoIluminacaoLocation, 3);
+    
+    //seleciona modo de iluminacao
+    glUniform1i(gmodoIluminacaoLocation, ModoIluminacao);
     
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -314,8 +316,17 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
     glutMotionFunc(callback_MotionCB);    
 
     int opcaomenu = glutCreateMenu(callback_MenuCB);
+    int menuiluminacao = glutCreateMenu(callback_MenuCB);
+    glutSetMenu(menuiluminacao);
+    glutAddMenuEntry("Flat", 2);
+    glutAddMenuEntry("Gouraud", 3);
+    glutAddMenuEntry("Phong", 4);
+    glutSetMenu(opcaomenu);
     glutAddMenuEntry("Projetiva", 0);
     glutAddMenuEntry("Ortogonal", 1);
+    glutAddSubMenu("Iluminacao", menuiluminacao);
+
+
     glutAttachMenu(GLUT_RIGHT_BUTTON);
 
     CubeWorldTransform.Rotate(-90.0f, 0.0f, 0.0f);
@@ -391,6 +402,16 @@ void ExercicioBase::MenuCB(int opcao)
     case 1:
         TipoProjecao = PARALELA;
         break;
+    case 2:
+        ModoIluminacao = FLAT;
+        break;
+    case 3:
+        ModoIluminacao = GOURAUD;
+        break;
+    case 4:
+        ModoIluminacao = PHONG;
+        break;
+
     }
 }
 

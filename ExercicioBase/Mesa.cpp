@@ -189,12 +189,14 @@ Mesa::Mesa(GLuint* VBO, GLuint* IBO)
 
     glGenBuffers(1, VBO);
     glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-    glBufferData(GL_ARRAY_BUFFER, Totalvertices * sizeof(Vertex), TodosVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, Totalvertices * sizeof(Vertex), TodosVertices, GL_DYNAMIC_DRAW);
 
     glGenBuffers(1, IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, TotalIndices * sizeof(unsigned int), TodosIndices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, TotalIndices * sizeof(unsigned int), TodosIndices, GL_DYNAMIC_DRAW);
 
+    glBufferSubData(GL_ARRAY_BUFFER, 0, Totalvertices * sizeof(Vertex), TodosVertices);
+    glutPostRedisplay();
 }
 
 unsigned int Mesa::RetornarNumIndices() 

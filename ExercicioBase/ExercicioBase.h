@@ -2,6 +2,10 @@
 #define PERSPECTIVA  0
 #define PARALELA  1
 
+#define FLAT  1
+#define GOURAUD  2
+#define PHONG  3
+
 /// <summary>
 /// Classe principal do programa
 /// </summary>

@@ -11,13 +11,13 @@ uniform vec3 gDirLuz;
 uniform mat4 gWVP;
 uniform mat4 gTrans;
 uniform int modoIluminacao;
-//uniform float ka,kd,ks,shininess;
 uniform Material gMaterial;
 
 in vec3 Color;
 in vec4 normal0;
 in vec3 vertPos;
 in vec3 normalCorrigida;
+flat in vec3 corFlat;
 
 float cosO;
 vec3 corFinal;
@@ -31,14 +31,9 @@ out vec4 gl_FragColor;
 vec3 CalcularPhong()
 {
     vec3 corSaida;
-//    ka=0.1;
-//    kd= 0.9;
-//    ks=0.9;
-//    shininess=80;
     corAmbiente = Color;
     corEspecular = vec3(1.0,1.0,1.0);
     corDifusa = Color;
-
     luzCorrigida =  gWVP * vec4( gDirLuz,1.0);
 
     vec3 N = normalize(normalCorrigida);
@@ -71,9 +66,11 @@ void main()
 {   
     if (modoIluminacao==3)
         gl_FragColor = vec4(CalcularPhong(), 1.0) ;
-    else
-        gl_FragColor = vec4(corFinal, 1.0) ;
+    if (modoIluminacao==2 )
+        gl_FragColor = vec4(Color, 1.0) ;
+    if (modoIluminacao==1)
+        gl_FragColor = vec4(corFlat, 1.0) ;    
 
- // FragColor = vec4(Color , 1.0) ;
+
 }
 
