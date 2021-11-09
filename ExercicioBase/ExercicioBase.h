@@ -60,21 +60,10 @@ private:
 	/// Funcao que roda em loop e envia os vertices e indices para renderizacao pelo OpenGL
 	/// </summary>
 	 void RenderSceneCB();
-	 /// <summary>
-	 /// Funcao para gerar a mesa
-	 /// </summary>
-	 /// <param name="WVP">Matriz de traformacao do mundo</param>
-	 void DesenharMesa(Matrix4f WVP);
-	 /// <summary>
-	 /// Funcao para gerar o bule
-	 /// </summary>
-	 /// <param name="WVP">Matriz de traformacao do mundo</param>
-	 void DesenharBule(Matrix4f WVP, Matrix4f transformacao);
-	 /// <summary>
-	/// Funcao para gerar o Icosaedro
-	/// </summary>
-	/// <param name="WVP">Matriz de traformacao do mundo</param>
-	 void DesenharIcosaedro(Matrix4f WVP, Matrix4f transformacao);
+	 
+
+	 void DesenharObjeto(Matrix4f WVP, Matrix4f transformacao, unsigned int numIndices, Material gMaterial, GLuint& _VBO, GLuint& _IBO);
+	
 
 
 	 /// <summary>
@@ -145,8 +134,9 @@ private:
 	/// </summary>
 	const char* pFSFileName = "fs.glsl";
 
-	void DesenharObjeto(Matrix4f WVP, Matrix4f transformacao, unsigned int numIndices, Material gMaterial, GLuint& _VBO, GLuint& _IBO);
 
+
+	void RenderScene();
 	
 };
 
@@ -154,6 +144,7 @@ private:
 /// Objeto da classe ExercicioBase, programa principal
 /// </summary>
 //  ExercicioBase* exercicioBase;
+
 
 /// <summary>
 /// Ponto de entrada do programa

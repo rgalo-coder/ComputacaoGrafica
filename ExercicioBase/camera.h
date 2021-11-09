@@ -1,66 +1,69 @@
-/*
-
-        Copyright 2021 Etay Meiri
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #ifndef CAMERA_H
-#define CAMERA_H
+#define	CAMERA_H
 
 #include "ogldev_math_3d.h"
 
-/// <summary>
-/// Classe para controle da camera
-/// </summary>
+
 class Camera
 {
 public:
-    /// <summary>
-    /// Construtor da classe Camera
-    /// </summary>
-    Camera();
-    float GetzNear();
-    /// <summary>
-    /// Define posicao da camera
-    /// </summary>
-    /// <param name="x">Coordenada X</param>
-    /// <param name="y">Coordenada Y</param>
-    /// <param name="z">Coordenada Z</param>
-    void SetPosition(float x, float y, float z);
 
-    /// <summary>
-    /// Funcao chamada quando uma tecla e pressionada
-    /// </summary>
-    /// <param name="key">Tecla pressionada<param>
-    void OnKeyboard(unsigned char key);
+    Camera(int WindowWidth, int WindowHeight);
 
-    /// <summary>
-    /// Retorna matrix 4x4 com a posicao da camera
-    /// </summary>
-    /// <returns>Matrix 4x4 com posicao da camera</returns>
+    Camera(int WindowWidth, int WindowHeight, const Vector3f& Pos, const Vector3f& Target, const Vector3f& Up);
+
+    bool OnKeyboard(unsigned char Key);
+
+    void OnMotion(int x, int y);
+
+    void OnMouse(int button, int state, int x, int y);
+
+    void OnRender();
+
+    const Vector3f& GetPos() const
+    {
+        return m_pos;
+    }
+
+    const Vector3f& GetTarget() const
+    {
+        return m_target;
+    }
+
+    const Vector3f& GetUp() const
+    {
+        return m_up;
+    }
+
     Matrix4f GetMatrix();
-    float zNear = 1.0f;
-
-private:
 
     Vector3f m_pos;
     Vector3f m_target;
     Vector3f m_up;
-    float m_speed = 0.2f;
-    bool m_isWireframe = false;
 
+
+
+
+private:
+
+    void Init();
+    void Update();
+
+
+    int m_windowWidth;
+    int m_windowHeight;
+
+    float m_AngleH;
+    float m_AngleV;
+
+    bool m_OnUpperEdge;
+    bool m_OnLowerEdge;
+    bool m_OnLeftEdge;
+    bool m_OnRightEdge;
+
+    Vector2i m_mousePos;
+
+    bool botaoesquerdo;
 };
 
-#endif  /* CAMERA_H */
+#endif	/* CAMERA_H */

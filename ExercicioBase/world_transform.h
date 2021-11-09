@@ -53,9 +53,7 @@ class WorldTrans {
     /// <param name="z">Movimento no eixo Z</param>
     void SetPosition(float x, float y, float z);
 
-    void OnMouse(int button, int state, int x, int y);
 
-    void OnMotion(int x, int y);
 
     /// <summary>
 /// Rotaciona objeto alem da rotacao atual

@@ -75,9 +75,6 @@
     <ClInclude Include="ogldev_math_3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Iluminacao.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Xsd Include="mainpage.md" />

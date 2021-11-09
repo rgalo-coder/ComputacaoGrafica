@@ -349,7 +349,7 @@ void CalcularNormalVertices(Vertex* vertices, unsigned int num_vertices, unsigne
     Vector3f normal, vertice1, vertice2, vertice3, lado1, lado2;
     unsigned int indice1, indice2, indice3;
 
-    for (unsigned int i = 0; i < num_indices; i = i + 3)
+    for (unsigned int i = 0; i < num_indices -2; i = i + 3)
     {
 
         indice1 = indices[i];

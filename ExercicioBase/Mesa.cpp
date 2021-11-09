@@ -70,9 +70,9 @@ Cilindro::Cilindro(int _numtriangulos, Vertex base, float raio, float altura, fl
             Indices[ind + 1] = 1;
             Indices[ind + 2] = i + 2;
 
-            Indices[ind + 4] = n + 1;
-            Indices[ind + 3] = n + 2;
-            Indices[ind + 5] = n + i + 3;
+            Indices[ind + 3] = n + 1;
+            Indices[ind + 5] = n + 2;
+            Indices[ind + 4] = n + i + 3;
 
             Indices[ind + 7] = 1;
             Indices[ind + 6] = i + 2;
@@ -99,7 +99,6 @@ unsigned int Cilindro::NumeroIndices()
 {
     return ind;
 }
-
 
 
 Mesa::Mesa(GLuint* VBO, GLuint* IBO)

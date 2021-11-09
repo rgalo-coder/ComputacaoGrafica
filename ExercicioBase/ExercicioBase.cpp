@@ -16,9 +16,10 @@
 
 #include <functional>
 
-
 #define WINDOW_WIDTH  800
 #define WINDOW_HEIGHT 600
+#define SHADOW_WIDTH  1024
+#define SHADOW_HEIGHT 1024
 
 GLuint VBO[3];
 GLuint IBO[3];
@@ -31,16 +32,18 @@ GLuint gWVPLuzLocation;
 GLuint gTranformationLocation;
 GLuint gMaterialLocation_ka, gMaterialLocation_ks, gMaterialLocation_kd, gMaterialLocation_shininess;
 GLuint gmodoIluminacaoLocation;
+GLuint gmodoShadowMapLocation;
+GLuint gLightSpaceMatrixLocation;
 
 ExercicioBase* exercicioBase;
 
 int TipoProjecao;
 int ModoIluminacao=1;
 
-
 WorldTrans CubeWorldTransform,TransBule, TransIcosaedro, TransMesa;
 
-Camera GameCamera;
+Camera GameCamera(WINDOW_WIDTH, WINDOW_HEIGHT);
+Camera LuzCamera(SHADOW_WIDTH, SHADOW_HEIGHT);
 bool mousebotaoesquerdo = false;
 
 Icosaedro* icosaedro;
@@ -49,76 +52,113 @@ BuleUtah* bule;
 
 float FOV = 45.0f;
 float zNear = 1.0f;
-float zFar = 10.0f;
-PersProjInfo PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
-OrthoProjInfo OrthoProjInfo = { 2.0f, -2.0f , -2.0f, +2.0f, zNear, zFar };
+float zFar = 6.0f;
 
+PersProjInfo _PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
+PersProjInfo _LightProjInfo = { FOV, SHADOW_WIDTH, SHADOW_HEIGHT, zNear, zFar };
+OrthoProjInfo _OrthoProjInfo = { 2.0f, -2.0f , -2.0f, +2.0f, zNear, zFar };
 
 Vector3f Luz = { 1.0f, 1.0f,1.0f };
+Vector3f DirecaoLuz = Vector3f( +3.0f, +3.0f,-1.0f );
 
-Vector3f DirecaoLuz = Vector3f( +2.0f, +2.0f,+0.0f );
 Matrix4f Identidade;
-
-
 
 unsigned int numTotalIndices, numIndicesMesa, numIndicesIcosaedro, numIndicesBule = 0;
 
 
+GLuint depthMapFBO, depthMap;
 
-Matrix3f WVPinv;
-bool setWVPinv = false;
+
+
+
+void ExercicioBase::RenderScene()
+{
+    Matrix4f World = CubeWorldTransform.GetMatrix();
+    Matrix4f View = GameCamera.GetMatrix();
+    Matrix4f Projection, ProjectionLuz;
+
+    if (TipoProjecao == PERSPECTIVA)
+        Projection.InitPersProjTransform(_PersProjInfo);
+    if (TipoProjecao == PARALELA)
+        Projection.InitOrthoProjTransform(_OrthoProjInfo);
+
+    Matrix4f WVP = Projection * View * World;
+
+    LuzCamera.m_pos = DirecaoLuz;
+    LuzCamera.m_target = Vector3f(0.0f, 0.0f, 0.0f) - DirecaoLuz;
+    ProjectionLuz.InitPersProjTransform(_LightProjInfo);
+    Matrix4f LightSpaceMatrix = ProjectionLuz * LuzCamera.GetMatrix() * World ;
+
+    //desenhar mesa
+    TransMesa.SetRotation(-90.0f, 0.0f, 0.0f);
+    Material gMaterial = { 0.2,0.4,0.4,200 };
+    DesenharObjeto(WVP, TransMesa.GetMatrix(), numIndicesMesa, gMaterial, VBO[0], IBO[0]);
+
+    //desenhar bule
+    TransBule.SetRotation(-90.0f, 0.0f, 0.0f);
+    TransBule.SetScale(0.1f);
+    gMaterial = { 0.2,0.9,1.0,70 };
+    DesenharObjeto(WVP, TransBule.GetMatrix(), numIndicesBule, gMaterial, VBO[1], IBO[1]);
+
+    //desenhar icosaedro
+    TransIcosaedro.SetRotation(-90.0f, 0.0f, 0.0f);
+    TransIcosaedro.SetScale(0.1f);
+    TransIcosaedro.SetPosition(0.4f, 0.1f, 0.1f);
+    gMaterial = { 0.2,0.9,1.0,80 };
+    DesenharObjeto(WVP, TransIcosaedro.GetMatrix(), numIndicesIcosaedro, gMaterial, VBO[2], IBO[2]);
+
+    glUniform3fv(gDirecaoLuzLocation, 1, DirecaoLuz);
+    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
+    glUniformMatrix4fv(gLightSpaceMatrixLocation, 1, GL_TRUE, &LightSpaceMatrix.m
+        [0][0]);
+
+    //seleciona modo de iluminacao
+    glUniform1i(gmodoIluminacaoLocation, ModoIluminacao);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+      
+
+}
 
 void ExercicioBase::RenderSceneCB()
 {
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    // renderizar na textura depthmap
+    glUniform1i(gmodoShadowMapLocation, 1);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, depthMapFBO);
 
-    CubeWorldTransform.SetPosition(0.0f, 0.0f, 2.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glBindTexture(GL_TEXTURE_2D, depthMap);   
+    glActiveTexture(GL_TEXTURE0);
+    RenderScene();
 
-    Matrix4f World = CubeWorldTransform.GetMatrix();
+    // desviar saida para o display
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    Matrix4f View = GameCamera.GetMatrix();
+    // desenhar shadowmap na tela - Descomentar    
+  /*  glUniform1i(gmodoShadowMapLocation, 2);
+    RenderScene();*/
+    // ------------------------------------------------------------
 
-    Matrix4f Projection;
-    if (TipoProjecao == PERSPECTIVA)
-        Projection.InitPersProjTransform(PersProjInfo);
-    if (TipoProjecao == PARALELA)
-        Projection.InitOrthoProjTransform(OrthoProjInfo);
-      
-    Matrix4f WVP = Projection * View * World;
 
-    //desenhar mesa
-    Material gMaterial = { 0.9,0.4,0.4,30 };
-    DesenharObjeto(WVP, Identidade, numIndicesMesa, gMaterial, VBO[0], IBO[0]);
+    // Renderizar a cena normal usando o shadowmap - Descomentar
+    glUniform1i(gmodoShadowMapLocation,0 );        
+    RenderScene();
+    // ------------------------------------------------------------
 
-    //desenhar bule
-    TransBule.SetScale(0.1f);
-    gMaterial = { 0.9,0.9,1.0,80 };
-    DesenharObjeto(WVP, TransBule.GetMatrix(), numIndicesBule, gMaterial, VBO[1], IBO[1]);
 
-   //desenhar icosaedro
-    TransIcosaedro.SetScale(0.1f);
-    TransIcosaedro.SetPosition(0.4f, 0.5f, 0.1f);
-    gMaterial = { 0.9,0.9,1.0,80 };
-    DesenharObjeto(WVP, TransIcosaedro.GetMatrix(),numIndicesIcosaedro, gMaterial, VBO[2], IBO[2]);
-    
 
-    glUniform3fv(gLuzLocation, 1, Luz);
-    glUniform3fv(gDirecaoLuzLocation, 1, DirecaoLuz);
-    glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
-    
-    //seleciona modo de iluminacao
-    glUniform1i(gmodoIluminacaoLocation, ModoIluminacao);
-    
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-
+    glutSwapBuffers();   
     glutPostRedisplay();
-
-    glutSwapBuffers();
 }
- 
-
 
 void ExercicioBase::DesenharObjeto(Matrix4f WVP, Matrix4f transformacao, unsigned int numIndices, Material gMaterial, GLuint &_VBO, GLuint &_IBO)
 {
@@ -148,7 +188,6 @@ void ExercicioBase::DesenharObjeto(Matrix4f WVP, Matrix4f transformacao, unsigne
     glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, 0);
 
 }
-
 
 void ExercicioBase::AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum ShaderType)
 {
@@ -218,17 +257,19 @@ void ExercicioBase::CompileShaders()
     }
 
     gWVPLocation = glGetUniformLocation(ShaderProgram, "gWVP");
-    gLuzLocation = glGetUniformLocation(ShaderProgram, "gLuz");
     gDirecaoLuzLocation = glGetUniformLocation(ShaderProgram, "gDirLuz");
-    gTranformationLocation = glGetUniformLocation(ShaderProgram, "gTrans");
     gTranformationLocation = glGetUniformLocation(ShaderProgram, "gTrans");
  
     gMaterialLocation_ka = glGetUniformLocation(ShaderProgram, "gMaterial.ka");
-    gMaterialLocation_ks = glGetUniformLocation(ShaderProgram, "gMaterial.ks");
     gMaterialLocation_kd = glGetUniformLocation(ShaderProgram, "gMaterial.kd");
+    gMaterialLocation_ks = glGetUniformLocation(ShaderProgram, "gMaterial.ks");
     gMaterialLocation_shininess = glGetUniformLocation(ShaderProgram, "gMaterial.shininess");
    
     gmodoIluminacaoLocation = glGetUniformLocation(ShaderProgram, "modoIluminacao");
+
+    gmodoShadowMapLocation = glGetUniformLocation(ShaderProgram, "modoShadowMap");
+
+    gLightSpaceMatrixLocation = glGetUniformLocation(ShaderProgram, "LightSpaceMatrix");
 
     glValidateProgram(ShaderProgram);
     glGetProgramiv(ShaderProgram, GL_VALIDATE_STATUS, &Success);
@@ -326,13 +367,36 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
     glutAddMenuEntry("Ortogonal", 1);
     glutAddSubMenu("Iluminacao", menuiluminacao);
 
+    glutAttachMenu(GLUT_RIGHT_BUTTON);    
 
-    glutAttachMenu(GLUT_RIGHT_BUTTON);
+    GameCamera.m_pos = Vector3f(0.0f, 2.0f, -3.0f);
+    //GameCamera.m_target = Vector3f(0.0f, 0.0f, 1.0f);
+    GameCamera.m_target = Vector3f(0.0f, 0.0f, 0.0f) - GameCamera.m_pos;
 
-    CubeWorldTransform.Rotate(-90.0f, 0.0f, 0.0f);
+    //initiate texture
+    glGenFramebuffers(1, &depthMapFBO);
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+  //  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+    if (Status != GL_FRAMEBUFFER_COMPLETE) {
+        printf("FB error, status: 0x%x\n", Status);
+        return;
+    }
 
     glutMainLoop();
-
 }
 
 void ExercicioBase::callback_MenuCB(int opcao)
@@ -368,22 +432,36 @@ void ExercicioBase::callback_SpecialKeyboardCB(int key, int mouse_x, int mouse_y
 void ExercicioBase::KeyboardCB(unsigned char key, int mouse_x, int mouse_y)
 {
     GameCamera.OnKeyboard(key);
-    zNear = GameCamera.GetzNear();
-    PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
+
+    if (key =='q')
+    { 
+        zNear += 0.05f;
+        printf("plano de corte alterado para %f\n", zNear);
+    }
+        
+
+    if (key == 'a')
+    {
+
+        zNear -= 0.05f;
+        printf("plano de corte alterado para %f\n", zNear);
+    }
+        
+  
+    _PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
     icosaedro->OnKeyboard(key);
-}
- 
+} 
 
 void ExercicioBase::MouseCB(int button, int state, int x, int y)
 {
 
-    CubeWorldTransform.OnMouse(button, state, x, y);
+    GameCamera.OnMouse(button, state, x, y);
 }
 
 void ExercicioBase::MotionCB(int x, int y)
 {
 
-    CubeWorldTransform.OnMotion(x, y);
+    GameCamera.OnMotion(x, y);
 }
 
 void ExercicioBase::SpecialKeyboardCB(int key, int mouse_x, int mouse_y)
