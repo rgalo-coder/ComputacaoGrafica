@@ -38,7 +38,6 @@ vec3 CalcularGouraud()
     vec3 N = normalize(outNormal);
     vec3 L = normalize(vec3(gPosLuz) - vertPos);
 
-    // Lambert's cosine law
     float lambertian = max(dot(N, L), 0.0);
     float specular = 0.0;
     vec3 specularColor = gCorLuz;
@@ -47,9 +46,9 @@ vec3 CalcularGouraud()
     if(lambertian > 0.0) 
     {
         vec3 vertPos2 = vec3(gWVP * vec4(vertPos,  1.0));
-        vec3 R = reflect(-L, N);      // Reflected light vector
-        vec3 V = normalize(-vertPos2); // Vector to viewer
-        // Compute the specular term
+        vec3 R = reflect(-L, N);      
+        vec3 V = normalize(-vertPos2); 
+
         float specAngle = max(dot(R, V), 0.0);
         specular = pow(specAngle, gMaterial.shininess);
     }
@@ -64,26 +63,20 @@ void main()
 {    
     if (modoShadowMap!=0)
     {
-        //gl_Position = gTotalLuz * vec4(Position, 1.0);  
           gl_Position = LightSpaceMatrix * gModel * vec4(Position, 1.0);
     }
     else
     {
- //       FragPosLightSpace = LightSpaceMatrix * gl_Position;
+        normalize(Position);
         vec4 vertPos4 = gModel * vec4(Position, 1.0);
         vertPos = vec3(vertPos4) / vertPos4.w;
-        gl_Position = gWVP * vertPos4; 
-        FragPosLightSpace = LightSpaceMatrix * vec4(vertPos, 1.0);
         outNormal = mat3(transpose(inverse(mat3(gModel)))) * Normal;
         outNormal = normalize(outNormal);
-  //      FragPosLightSpace = gTotalLuz * gl_Position;
-  //      normalCorrigida = vec3(transpose(inverse(gTotal)) * vec4(Normal, 0.0)); 
-    //    normalCorrigida = mat3(inverse(gTotal)) * Normal;  
-     
+        FragPosLightSpace = LightSpaceMatrix * gModel * vec4(Position, 1.0);
+        gl_Position = gWVP * gModel * vec4(Position, 1.0);             
 
         if (modoIluminacao==3 )
             Color = inColor;
-            corFlat = Color;
             
         if (modoIluminacao==2 || modoIluminacao==1)
         {
