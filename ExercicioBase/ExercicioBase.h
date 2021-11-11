@@ -6,6 +6,11 @@
 #define GOURAUD  2
 #define PHONG  3
 
+#define WINDOW_WIDTH  800
+#define WINDOW_HEIGHT 600
+#define SHADOW_WIDTH  1024
+#define SHADOW_HEIGHT 1024
+
 /// <summary>
 /// Classe principal do programa
 /// </summary>
@@ -150,3 +155,53 @@ private:
 /// Ponto de entrada do programa
 /// </summary>
 int main(int argc, char** argv);
+
+GLuint VBO[3];
+GLuint IBO[3];
+GLuint gWVPLocation;
+GLuint gCorHSVIcosaedro;
+GLuint VAO;
+GLuint gCorLuzLocation;
+GLuint gPosLuzLocation;
+GLuint gWVPLuzLocation;
+GLuint gModelLocation;
+GLuint gMaterialLocation_ka, gMaterialLocation_ks, gMaterialLocation_kd, gMaterialLocation_shininess;
+GLuint gmodoIluminacaoLocation;
+GLuint gmodoShadowMapLocation;
+GLuint gLightSpaceMatrixLocation;
+
+ExercicioBase* exercicioBase;
+
+int TipoProjecao;
+int ModoIluminacao = 1;
+
+WorldTrans TransBule, TransIcosaedro, TransMesa;
+
+Camera GameCamera(WINDOW_WIDTH, WINDOW_HEIGHT);
+Camera LuzCamera(SHADOW_WIDTH, SHADOW_HEIGHT);
+bool mousebotaoesquerdo = false;
+
+Icosaedro* icosaedro;
+Mesa* mesa;
+BuleUtah* bule;
+
+float FOV = 45.0f;
+float zNear = 1.0f;
+float zFar = 6.0f;
+
+PersProjInfo _PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
+PersProjInfo _LightProjInfo = { FOV, SHADOW_WIDTH, SHADOW_HEIGHT, zNear, zFar };
+OrthoProjInfo _OrthoProjInfo = { 2.0f, -2.0f , -2.0f, +2.0f, zNear, zFar };
+
+Vector3f CorLuz = { 1.0f, 1.0f,1.0f };
+Vector3f PosicaoLuz = { +2.0f, +2.0f, -0.8f };
+
+Matrix4f Identidade;
+
+unsigned int numTotalIndices, numIndicesMesa, numIndicesIcosaedro, numIndicesBule = 0;
+
+
+GLuint depthMapFBO, depthMap;
+
+
+

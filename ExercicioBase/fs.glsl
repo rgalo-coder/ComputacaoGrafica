@@ -6,10 +6,10 @@ struct Material
 };
 
 
-
-uniform vec3 gDirLuz;
+uniform vec3 gCorLuz;
+uniform vec3 gPosLuz;
 uniform mat4 gWVP;
-uniform mat4 gTrans;
+uniform mat4 gModel;
 uniform int modoIluminacao;
 uniform Material gMaterial;
 uniform int modoShadowMap;   
@@ -22,13 +22,20 @@ flat in vec3 corFlat;
 in vec4 FragPosLightSpace;
 in vec2 TexCoords;
 
-mat4 gTotal = gWVP * gTrans ;
+mat4 gTotal = gWVP * gModel ;
 vec3 normalCorrigida;
-float cosO;
-vec3 corFinal;
-vec4 luzCorrigida;
 vec3 corAmbiente,corDifusa,corEspecular;
-vec3 ia,id,is;
+
+
+float near_plane = 1.0;
+float far_plane = 6.0;
+
+
+float LinearizeDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0; // Back to NDC 
+    return (2.0 * near_plane * far_plane) / (far_plane + near_plane - z * (far_plane - near_plane));
+}
 
 float ShadowCalculation1(vec4 FragPosLightSpace)
 {
@@ -65,6 +72,7 @@ float CalcShadowFactor(vec4 LightSpacePos)
     UVCoords.y = 0.5 * ProjCoords.y + 0.5;
     float z = 0.5 * ProjCoords.z + 0.5;
     float Depth = texture(depthMap, UVCoords).r;
+    
     if (Depth < (z + 0.00001))
         return 0.2;
     else
@@ -74,39 +82,34 @@ float CalcShadowFactor(vec4 LightSpacePos)
 
 vec3 CalcularPhong()
 {
-    vec3 corSaida;
-    corAmbiente = Color;
-    corEspecular = vec3(1.0,1.0,1.0);
-    corDifusa = Color;
-    luzCorrigida = gWVP *  vec4( gDirLuz,1.0);
-    
     vec3 N = normalize(outNormal);
-    vec3 L = normalize( vec3(luzCorrigida)-vertPos ) ;
-    cosO = max(dot(N , L ),0);
+    vec3 L = normalize(gPosLuz - vertPos);
 
-    ia = gMaterial.ka * corAmbiente;  
-
-    if (cosO > 0) {
-        vec3 R = reflect(-L,N);
-        vec3 V = normalize(-vertPos);
-
-        id = gMaterial.kd * cosO * corDifusa;
-
-        float anguloEspecular = max(dot(R, V), 0.0);
-        is = gMaterial.ks * pow(anguloEspecular, gMaterial.shininess) * corEspecular;
-        float shadow = CalcShadowFactor(FragPosLightSpace);     
-    //    float shadow = ShadowCalculation(FragPosLightSpace);     
-    
-        corSaida = ia + shadow * (id+is);
-    }
-    else 
+    // Lambert's cosine law
+    float lambertian = max(dot(N, L), 0.0);
+    float specular = 0.0;
+    vec3 specularColor = gCorLuz;
+    vec3 diffuseColor = Color;
+    vec3 ambientColor = Color;
+    if(lambertian > 0.0) 
     {
-        corSaida = ia;
+        vec3 vertPos2 = vec3(gWVP * vec4(vertPos,  1.0));
+        vec3 R = reflect(-L, N);      // Reflected light vector
+        vec3 V = normalize(-vertPos2); // Vector to viewer
+        // Compute the specular term
+        float specAngle = max(dot(R, V), 0.0);
+        specular = pow(specAngle, gMaterial.shininess);
     }
-    return corSaida;
-
-}
-
+    vec3 ia = gMaterial.ka * ambientColor;
+    vec3 id = gMaterial.kd * lambertian * diffuseColor;
+    vec3 is = gMaterial.ks * specular * specularColor;
+          
+    float shadow = CalcShadowFactor(FragPosLightSpace);     
+  //  float shadow = ShadowCalculation(FragPosLightSpace);     
+    
+    return  ia + shadow * (id+is);
+    }
+  
 
 void main()
 {   
@@ -129,6 +132,7 @@ void main()
 //  //          Depth = 1.0 - (1.0 - Depth) * 0.50;
 //            gl_FragColor = vec4(vec3(Depth), 1.0);
   //          gl_FragDepth = gl_FragCoord.z;
+//                gl_FragDepth = gl_FragCoord.z;
 //        
     }
     if (modoShadowMap==2)
@@ -141,9 +145,18 @@ void main()
 //        // transform to [0,1] range
 //        projCoords = projCoords * 0.5 + 0.5;
         // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-        float depthValue = texture(depthMap, gl_FragCoord.xy).r; 
-//        depthValue = 1.0 - (1.0 - depthValue*0.1) * 0.5;   
+//        float depthValue = texture(depthMap, gl_FragCoord.xy).r; 
+//        depthValue = 1.0 - (1.0 - depthValue*0.1) * 0.5;  
+
+       float depthValue = texture(depthMap, gl_FragCoord.xy).y;
+
+//       depthValue = 1.0 - (1.0 - depthValue * 0.5) * 0.1;
         gl_FragColor = vec4(vec3(depthValue), 1.0);
+        
+//            float depthValue = texture(depthMap, TexCoords).r;
+//            gl_FragColor = vec4(vec3(LinearizeDepth(depthValue) / far_plane), 1.0); // perspective
+            // FragColor = vec4(vec3(depthValue), 1.0); // orthographic
+         
 
     }
     else

@@ -147,6 +147,8 @@ void Camera::OnMouse(int button, int state, int x, int y)
     if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
         botaoesquerdo = true;    
+        m_mousePos.x = x;
+        m_mousePos.y = y; 
 
     }
     if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
@@ -167,12 +169,12 @@ void Camera::OnMotion(int x, int y)
     m_mousePos.x = x;
     m_mousePos.y = y;
 
-    m_AngleH += (float)DeltaX / 10.0f;
-    m_AngleV += (float)DeltaY / 10.0f;
+    m_AngleH += (float)DeltaX / 5.0f;
+    m_AngleV += (float)DeltaY / 5.0f;
 
     if (DeltaX == 0) {
         if (x <= MARGIN) {
-                m_AngleH -= 1.0f;
+            //    m_AngleH -= 1.0f;
             m_OnLeftEdge = true;
         }
         else if (x >= (m_windowWidth - MARGIN)) {

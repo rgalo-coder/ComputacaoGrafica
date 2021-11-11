@@ -16,64 +16,10 @@
 
 #include <functional>
 
-#define WINDOW_WIDTH  800
-#define WINDOW_HEIGHT 600
-#define SHADOW_WIDTH  1024
-#define SHADOW_HEIGHT 1024
-
-GLuint VBO[3];
-GLuint IBO[3];
-GLuint gWVPLocation;
-GLuint gCorHSVIcosaedro;
-GLuint VAO;
-GLuint gLuzLocation;
-GLuint gDirecaoLuzLocation;
-GLuint gWVPLuzLocation;
-GLuint gTranformationLocation;
-GLuint gMaterialLocation_ka, gMaterialLocation_ks, gMaterialLocation_kd, gMaterialLocation_shininess;
-GLuint gmodoIluminacaoLocation;
-GLuint gmodoShadowMapLocation;
-GLuint gLightSpaceMatrixLocation;
-
-ExercicioBase* exercicioBase;
-
-int TipoProjecao;
-int ModoIluminacao=1;
-
-WorldTrans CubeWorldTransform,TransBule, TransIcosaedro, TransMesa;
-
-Camera GameCamera(WINDOW_WIDTH, WINDOW_HEIGHT);
-Camera LuzCamera(SHADOW_WIDTH, SHADOW_HEIGHT);
-bool mousebotaoesquerdo = false;
-
-Icosaedro* icosaedro;
-Mesa* mesa;
-BuleUtah* bule;
-
-float FOV = 45.0f;
-float zNear = 1.0f;
-float zFar = 6.0f;
-
-PersProjInfo _PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
-PersProjInfo _LightProjInfo = { FOV, SHADOW_WIDTH, SHADOW_HEIGHT, zNear, zFar };
-OrthoProjInfo _OrthoProjInfo = { 2.0f, -2.0f , -2.0f, +2.0f, zNear, zFar };
-
-Vector3f Luz = { 1.0f, 1.0f,1.0f };
-Vector3f DirecaoLuz = Vector3f( +3.0f, +3.0f,-1.0f );
-
-Matrix4f Identidade;
-
-unsigned int numTotalIndices, numIndicesMesa, numIndicesIcosaedro, numIndicesBule = 0;
-
-
-GLuint depthMapFBO, depthMap;
-
-
 
 
 void ExercicioBase::RenderScene()
 {
-    Matrix4f World = CubeWorldTransform.GetMatrix();
     Matrix4f View = GameCamera.GetMatrix();
     Matrix4f Projection, ProjectionLuz;
 
@@ -82,12 +28,13 @@ void ExercicioBase::RenderScene()
     if (TipoProjecao == PARALELA)
         Projection.InitOrthoProjTransform(_OrthoProjInfo);
 
-    Matrix4f WVP = Projection * View * World;
+//    Matrix4f WVP = Projection * View * World;
+    Matrix4f WVP = Projection * GameCamera.GetMatrix(); //* World;
 
-    LuzCamera.m_pos = DirecaoLuz;
-    LuzCamera.m_target = Vector3f(0.0f, 0.0f, 0.0f) - DirecaoLuz;
+    LuzCamera.m_pos = PosicaoLuz;
+    LuzCamera.m_target = Vector3f(0.0f, 0.0f, 0.0f) - PosicaoLuz;
     ProjectionLuz.InitPersProjTransform(_LightProjInfo);
-    Matrix4f LightSpaceMatrix = ProjectionLuz * LuzCamera.GetMatrix() * World ;
+    Matrix4f LightSpaceMatrix = ProjectionLuz * LuzCamera.GetMatrix() ;
 
     //desenhar mesa
     TransMesa.SetRotation(-90.0f, 0.0f, 0.0f);
@@ -107,7 +54,9 @@ void ExercicioBase::RenderScene()
     gMaterial = { 0.2,0.9,1.0,80 };
     DesenharObjeto(WVP, TransIcosaedro.GetMatrix(), numIndicesIcosaedro, gMaterial, VBO[2], IBO[2]);
 
-    glUniform3fv(gDirecaoLuzLocation, 1, DirecaoLuz);
+    
+    glUniform3fv(gPosLuzLocation, 1, PosicaoLuz);
+    glUniform3fv(gCorLuzLocation, 1, CorLuz);
     glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
     glUniformMatrix4fv(gLightSpaceMatrixLocation, 1, GL_TRUE, &LightSpaceMatrix.m
         [0][0]);
@@ -142,25 +91,22 @@ void ExercicioBase::RenderSceneCB()
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-    // desenhar shadowmap na tela - Descomentar    
-  /*  glUniform1i(gmodoShadowMapLocation, 2);
-    RenderScene();*/
-    // ------------------------------------------------------------
-
-
-    // Renderizar a cena normal usando o shadowmap - Descomentar
-    glUniform1i(gmodoShadowMapLocation,0 );        
+//
+//     desenhar shadowmap na tela - Descomentar    
+    glUniform1i(gmodoShadowMapLocation, 2);
     RenderScene();
-    // ------------------------------------------------------------
+ //    ------------------------------------------------------------
 
-
+    ////// Renderizar a cena normal usando o shadowmap - Descomentar
+    //glUniform1i(gmodoShadowMapLocation,0 );        
+    //RenderScene();
+    ////// ------------------------------------------------------------
 
     glutSwapBuffers();   
     glutPostRedisplay();
 }
 
-void ExercicioBase::DesenharObjeto(Matrix4f WVP, Matrix4f transformacao, unsigned int numIndices, Material gMaterial, GLuint &_VBO, GLuint &_IBO)
+void ExercicioBase::DesenharObjeto(Matrix4f WVP, Matrix4f Model, unsigned int numIndices, Material gMaterial, GLuint &_VBO, GLuint &_IBO)
 {
     
     glUniform1f(gMaterialLocation_ka, gMaterial.ka);
@@ -169,7 +115,7 @@ void ExercicioBase::DesenharObjeto(Matrix4f WVP, Matrix4f transformacao, unsigne
     glUniform1f(gMaterialLocation_shininess, gMaterial.shininess);
 
     glUniformMatrix4fv(gWVPLocation, 1, GL_TRUE, &WVP.m[0][0]);
-    glUniformMatrix4fv(gTranformationLocation, 1, GL_TRUE, &transformacao.m[0][0]);
+    glUniformMatrix4fv(gModelLocation, 1, GL_TRUE, &Model.m[0][0]);
     glBindBuffer(GL_ARRAY_BUFFER, _VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _IBO);
 
@@ -257,8 +203,10 @@ void ExercicioBase::CompileShaders()
     }
 
     gWVPLocation = glGetUniformLocation(ShaderProgram, "gWVP");
-    gDirecaoLuzLocation = glGetUniformLocation(ShaderProgram, "gDirLuz");
-    gTranformationLocation = glGetUniformLocation(ShaderProgram, "gTrans");
+    gCorLuzLocation = glGetUniformLocation(ShaderProgram, "gCorLuz");
+    gPosLuzLocation = glGetUniformLocation(ShaderProgram, "gPosLuz");
+    gModelLocation = glGetUniformLocation(ShaderProgram, "gModel");
+    
  
     gMaterialLocation_ka = glGetUniformLocation(ShaderProgram, "gMaterial.ka");
     gMaterialLocation_kd = glGetUniformLocation(ShaderProgram, "gMaterial.kd");
@@ -292,7 +240,6 @@ int ExercicioBase::startup()
     
     glutInitContextVersion(4, 5);
     glutInitContextProfile(GLUT_CORE_PROFILE);
-
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
