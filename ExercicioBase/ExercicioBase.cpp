@@ -72,7 +72,7 @@ void ExercicioBase::RenderScene()
 
 void ExercicioBase::RenderSceneCB()
 {
-    
+
     // renderizar na textura depthmap
     glUniform1i(gmodoShadowMapLocation, 1);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -91,19 +91,16 @@ void ExercicioBase::RenderSceneCB()
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-
-////     desenhar shadowmap na tela - Descomentar    
-//  glUniform1i(gmodoShadowMapLocation, 2);
-//  RenderScene();
-////    ------------------------------------------------------------
-
-
-//// Renderizar a cena normal usando o shadowmap - Descomentar
-    glUniform1i(gmodoShadowMapLocation,0 );        
+//
+//     desenhar shadowmap na tela - Descomentar    
+    glUniform1i(gmodoShadowMapLocation, 2);
     RenderScene();
-//// ------------------------------------------------------------
+ //    ------------------------------------------------------------
 
+    ////// Renderizar a cena normal usando o shadowmap - Descomentar
+    //glUniform1i(gmodoShadowMapLocation,0 );        
+    //RenderScene();
+    ////// ------------------------------------------------------------
 
     glutSwapBuffers();   
     glutPostRedisplay();
@@ -270,9 +267,9 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
 {
     glutInit(&argc, argv);
     startup();
- //   glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glFrontFace(GL_CW);
-  //  glCullFace(GL_BACK);
+    glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
     TipoProjecao = PERSPECTIVA;
 
@@ -319,10 +316,11 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
 
     glutAttachMenu(GLUT_RIGHT_BUTTON);    
 
-    GameCamera.m_pos = Vector3f(0.0f, 0.0f, -3.0f);
+    GameCamera.m_pos = Vector3f(0.0f, 2.0f, -3.0f);
+    //GameCamera.m_target = Vector3f(0.0f, 0.0f, 1.0f);
     GameCamera.m_target = Vector3f(0.0f, 0.0f, 0.0f) - GameCamera.m_pos;
 
-    //inicial textura
+    //initiate texture
     glGenFramebuffers(1, &depthMapFBO);
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
@@ -337,6 +335,7 @@ ExercicioBase::ExercicioBase(int argc, char** argv)
     
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
+  //  glBindFramebuffer(GL_FRAMEBUFFER, 0);
     GLenum Status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
     if (Status != GL_FRAMEBUFFER_COMPLETE) {
