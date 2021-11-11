@@ -6,8 +6,8 @@
 #define GOURAUD  2
 #define PHONG  3
 
-#define WINDOW_WIDTH  800
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH  1024
+#define WINDOW_HEIGHT 1024
 #define SHADOW_WIDTH  1024
 #define SHADOW_HEIGHT 1024
 
@@ -190,7 +190,7 @@ float zNear = 1.0f;
 float zFar = 6.0f;
 
 PersProjInfo _PersProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
-PersProjInfo _LightProjInfo = { FOV, SHADOW_WIDTH, SHADOW_HEIGHT, zNear, zFar };
+PersProjInfo _LightProjInfo = { FOV, WINDOW_WIDTH, WINDOW_HEIGHT, zNear, zFar };
 OrthoProjInfo _OrthoProjInfo = { 2.0f, -2.0f , -2.0f, +2.0f, zNear, zFar };
 
 Vector3f CorLuz = { 1.0f, 1.0f,1.0f };
