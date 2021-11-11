@@ -49,6 +49,9 @@
     <ClCompile Include="BuleUtah.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Cilindro.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -73,6 +76,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ogldev_math_3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cilindro.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

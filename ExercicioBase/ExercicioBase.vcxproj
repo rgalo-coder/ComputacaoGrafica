@@ -124,6 +124,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>../Lib;\Lib\x64</AdditionalLibraryDirectories>
+      <StackReserveSize>4194304</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -164,6 +165,7 @@
   <ItemGroup>
     <ClCompile Include="BuleUtah.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="Cilindro.cpp" />
     <ClCompile Include="Icosaedro.cpp" />
     <ClCompile Include="math_3d.cpp" />
     <ClCompile Include="Mesa.cpp" />
@@ -174,6 +176,7 @@
   <ItemGroup>
     <ClInclude Include="BuleUtah.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="Cilindro.h" />
     <ClInclude Include="DadosBule.h" />
     <ClInclude Include="ExercicioBase.h" />
     <ClInclude Include="Icosaedro.h" />
